@@ -300,6 +300,25 @@ p{color:var(--fg-dim)}
 .base-note a{border-bottom:1px solid var(--line-bright)}
 .base-note a:hover{color:var(--fg-dim)}
 
+/* ---------- grupos (sistema / apps próprios / terceiros) ---------- */
+.group{margin-top:38px}
+.group:first-of-type{margin-top:24px}
+.group-head{display:flex;align-items:center;gap:14px}
+.group-head b{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--brand-sky);white-space:nowrap}
+.group-head i{flex:1;height:1px;font-style:normal;background:linear-gradient(90deg,var(--line-bright),transparent)}
+.group-head em{font-size:11px;color:var(--fg-faint);font-style:normal;letter-spacing:.06em;white-space:nowrap}
+.group-note{margin-top:10px;font-size:12.5px;color:var(--fg-faint);max-width:72ch}
+.group.third .group-head b{color:var(--fg-dim)}
+
+.origin{
+  font-size:10px;letter-spacing:.14em;text-transform:uppercase;padding:3px 8px;
+  border:1px solid var(--line);border-radius:999px;color:var(--fg-faint);white-space:nowrap;
+}
+.origin-sys{border-color:color-mix(in srgb,var(--brand-sky) 45%,transparent);color:var(--brand-sky)}
+.origin-aios{border-color:color-mix(in srgb,var(--brand-indigo) 65%,transparent);color:#b9a6f0}
+.origin-3p{border-color:var(--line-bright);color:var(--fg-dim)}
+.tool-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+
 /* ---------- ferramentas nativas ---------- */
 .tool-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:20px}
 .tool{

@@ -259,14 +259,14 @@
 
   <section id="apps">
     <div class="wrap">
-      <div class="eyebrow">Apps próprios</div>
+      <div class="eyebrow">Apps próprios · AIOS</div>
       <h2>Apps que nascem junto com o sistema.</h2>
-      <p class="lead">Não é só um daemon: são apps abertos, escritos para rodar offline e conversar com o mesmo runtime.</p>
+      <p class="lead">Desenvolvidos pela organização AIOS, abertos e em Rust/TypeScript: não é só um daemon, são apps que rodam offline e conversam com o mesmo runtime.</p>
       <div class="cards">
         <article class="card reveal">
           <div class="card-head">
             <span class="icon-badge"><svg class="icon"><use href="#icon-gateway"></use></svg></span>
-            <div><span class="tag">Em construção · MIT</span><h3>Laya Gateway</h3></div>
+            <div><span class="tag">Em construção · MIT</span><h3>Laya Gateway</h3><span class="origin origin-aios">App próprio</span></div>
           </div>
           <p>Gateway local entre o seu agente e o seu LLM: a Laya decide qual ferramenta chamar em uma pergunta pequena e tipada; o resto da requisição segue direto para o modelo. Fail-open por design — se a Laya cair, a requisição passa intacta.</p>
           <ul>
@@ -279,7 +279,7 @@
         <article class="card reveal">
           <div class="card-head">
             <span class="icon-badge"><svg class="icon"><use href="#icon-database"></use></svg></span>
-            <div><span class="tag">Em construção · MIT</span><h3>Web SQLite Admin</h3></div>
+            <div><span class="tag">Em construção · MIT</span><h3>Web SQLite Admin</h3><span class="origin origin-aios">App próprio</span></div>
           </div>
           <p>Administração open source de bancos SQLite com frontend Next.js e API Rust/Actix. Login por senha, bases, tabelas, busca, CRUD, schema, importação, exportação, integridade e console SQL em um só lugar.</p>
           <ul>
@@ -296,54 +296,125 @@
     </div>
   </section>
 
-  <section id="tools">
+  <section id="system">
     <div class="wrap">
-      <div class="eyebrow">Ferramentas nativas</div>
+      <div class="eyebrow">Sistema · aios</div>
       <h2>O que já vem pronto no sistema.</h2>
-      <p class="lead">Cada ferramenta do aios é um crate ou um binário próprio, em Rust, compilado para o desktop e para o Pi. Nada de dependência de nuvem.</p>
-      <div class="tool-grid">
-        <article class="tool reveal">
-          <span class="icon-badge"><svg class="icon"><use href="#icon-pulse"></use></svg></span>
-          <h3>edge-ai</h3>
-          <p>Daemon HTTP local: health, models, inferência, benchmark, logs, métricas e painel web num binário só. Sobe primeiro e pré-carrega o modelo em background.</p>
-          <span class="cmd">~8 MB · bin/edge-ai</span>
-          <a class="card-link" href="https://github.com/aios-b-612/aios/tree/main/edge-ai" target="_blank" rel="noopener">crate edge-ai <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
-        </article>
-        <article class="tool reveal">
-          <span class="icon-badge"><svg class="icon"><use href="#icon-terminal"></use></svg></span>
-          <h3>edge</h3>
-          <p>CLI do daemon: status, models, run, benchmark, logs, monitor e serve. É o painel de linha de comando do dispositivo.</p>
-          <span class="cmd">edge status</span>
-          <a class="card-link" href="https://github.com/aios-b-612/aios/tree/main/edge-ai" target="_blank" rel="noopener">bin/edge <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
-        </article>
-        <article class="tool reveal">
-          <span class="icon-badge"><svg class="icon"><use href="#icon-spark"></use></svg></span>
-          <h3>ai</h3>
-          <p>CLI de modelos e tarefas: list, info, inspect, verify, install, remove, doctor, run e <code>ai task</code> (summarize, classify, intent, translate, qa) com roteamento por config.</p>
-          <span class="cmd">ai task classify</span>
-          <a class="card-link" href="https://github.com/aios-b-612/aios/tree/main/cli/ai" target="_blank" rel="noopener">crate aios-cli <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
-        </article>
-        <article class="tool reveal">
-          <span class="icon-badge"><svg class="icon"><use href="#icon-box"></use></svg></span>
-          <h3>ai-core</h3>
-          <p>Núcleo compartilhado: parser GGUF com streaming, SHA-256, cache global, registry TSV e metadados de modelo. O modelo é dado local — a gestão também.</p>
-          <span class="cmd">GGUF · SHA-256 · registry</span>
-          <a class="card-link" href="https://github.com/aios-b-612/aios/tree/main/ai-core" target="_blank" rel="noopener">crate aios-core <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
-        </article>
-        <article class="tool reveal">
-          <span class="icon-badge"><svg class="icon"><use href="#icon-cpu"></use></svg></span>
-          <h3>ai-inference</h3>
-          <p>Backends de inferência em Rust puro sobre Candle CPU, com streaming de tokens. A base sobre a qual o daemon, o CLI e o SDK geram texto.</p>
-          <span class="cmd">Candle CPU · streaming</span>
-          <a class="card-link" href="https://github.com/aios-b-612/aios/tree/main/ai-inference" target="_blank" rel="noopener">crate aios-inference <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
-        </article>
-        <article class="tool reveal">
-          <span class="icon-badge"><svg class="icon"><use href="#icon-layers"></use></svg></span>
-          <h3>edge-sdk</h3>
-          <p>SDK para apps e agentes de borda: carrega um modelo do registry e gera tokens com métricas de TPS e tempo de load, com a mesma API do core.</p>
-          <span class="cmd">load · generate_with_metrics</span>
-          <a class="card-link" href="https://github.com/aios-b-612/aios/tree/main/edge-sdk" target="_blank" rel="noopener">crate aios-sdk <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
-        </article>
+      <p class="lead">Cada peça do aios é um crate ou um binário próprio, em Rust, compilado para o desktop e para o Pi. Nada de dependência de nuvem.</p>
+
+      <div class="group">
+        <div class="group-head"><b>Runtime e CLIs</b><i></i><em>executáveis do sistema</em></div>
+        <div class="tool-grid">
+          <article class="tool reveal">
+            <div class="tool-top">
+              <span class="icon-badge"><svg class="icon"><use href="#icon-pulse"></use></svg></span>
+              <span class="origin origin-sys">Sistema</span>
+            </div>
+            <h3>edge-ai</h3>
+            <p>Daemon HTTP local: health, models, inferência, benchmark, logs, métricas e painel web num binário só. Sobe primeiro e pré-carrega o modelo em background.</p>
+            <span class="cmd">~8 MB · bin/edge-ai</span>
+            <a class="card-link" href="https://github.com/aios-b-612/aios/tree/main/edge-ai" target="_blank" rel="noopener">crate edge-ai <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
+          </article>
+          <article class="tool reveal">
+            <div class="tool-top">
+              <span class="icon-badge"><svg class="icon"><use href="#icon-terminal"></use></svg></span>
+              <span class="origin origin-sys">Sistema</span>
+            </div>
+            <h3>edge</h3>
+            <p>CLI do daemon: status, models, run, benchmark, logs, monitor e serve. É o painel de linha de comando do dispositivo.</p>
+            <span class="cmd">edge status</span>
+            <a class="card-link" href="https://github.com/aios-b-612/aios/tree/main/edge-ai" target="_blank" rel="noopener">bin/edge <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
+          </article>
+          <article class="tool reveal">
+            <div class="tool-top">
+              <span class="icon-badge"><svg class="icon"><use href="#icon-spark"></use></svg></span>
+              <span class="origin origin-sys">Sistema</span>
+            </div>
+            <h3>ai</h3>
+            <p>CLI de modelos e tarefas: list, info, inspect, verify, install, remove, doctor, run e <code>ai task</code> (summarize, classify, intent, translate, qa) com roteamento por config.</p>
+            <span class="cmd">ai task classify</span>
+            <a class="card-link" href="https://github.com/aios-b-612/aios/tree/main/cli/ai" target="_blank" rel="noopener">crate aios-cli <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
+          </article>
+        </div>
+      </div>
+
+      <div class="group">
+        <div class="group-head"><b>Bibliotecas do núcleo</b><i></i><em>crates compartilhados</em></div>
+        <div class="tool-grid">
+          <article class="tool reveal">
+            <div class="tool-top">
+              <span class="icon-badge"><svg class="icon"><use href="#icon-box"></use></svg></span>
+              <span class="origin origin-sys">Sistema</span>
+            </div>
+            <h3>ai-core</h3>
+            <p>Núcleo compartilhado: parser GGUF com streaming, SHA-256, cache global, registry TSV e metadados de modelo. O modelo é dado local — a gestão também.</p>
+            <span class="cmd">GGUF · SHA-256 · registry</span>
+            <a class="card-link" href="https://github.com/aios-b-612/aios/tree/main/ai-core" target="_blank" rel="noopener">crate aios-core <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
+          </article>
+          <article class="tool reveal">
+            <div class="tool-top">
+              <span class="icon-badge"><svg class="icon"><use href="#icon-cpu"></use></svg></span>
+              <span class="origin origin-sys">Sistema</span>
+            </div>
+            <h3>ai-inference</h3>
+            <p>Backends de inferência em Rust puro sobre Candle CPU, com streaming de tokens. A base sobre a qual o daemon, o CLI e o SDK geram texto.</p>
+            <span class="cmd">Candle CPU · streaming</span>
+            <a class="card-link" href="https://github.com/aios-b-612/aios/tree/main/ai-inference" target="_blank" rel="noopener">crate aios-inference <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
+          </article>
+          <article class="tool reveal">
+            <div class="tool-top">
+              <span class="icon-badge"><svg class="icon"><use href="#icon-layers"></use></svg></span>
+              <span class="origin origin-sys">Sistema</span>
+            </div>
+            <h3>edge-sdk</h3>
+            <p>SDK para apps e agentes de borda: carrega um modelo do registry e gera tokens com métricas de TPS e tempo de load, com a mesma API do core.</p>
+            <span class="cmd">load · generate_with_metrics</span>
+            <a class="card-link" href="https://github.com/aios-b-612/aios/tree/main/edge-sdk" target="_blank" rel="noopener">crate aios-sdk <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="third">
+    <div class="wrap">
+      <div class="eyebrow">Apps de terceiros</div>
+      <h2>Ferramentas de terceiros que o aios adota.</h2>
+      <p class="lead">Não fazem parte do sistema e não são nosso código. São projetos abertos de terceiros que já rodam no mesmo runtime e que o aios usa como componente.</p>
+      <div class="group third">
+        <div class="group-head"><b>Terceiros</b><i></i><em>projetos externos adotados</em></div>
+        <div class="tool-grid">
+          <article class="tool reveal">
+            <div class="tool-top">
+              <span class="icon-badge"><svg class="icon"><use href="#icon-network"></use></svg></span>
+              <span class="origin origin-3p">Terceiros</span>
+            </div>
+            <h3>ai-memory</h3>
+            <p>Memória de longo prazo para os agentes do sistema, em binário único Rust, sem chave de API no caminho padrão.</p>
+            <span class="cmd">MIT · akitaonrails</span>
+            <a class="card-link" href="https://github.com/akitaonrails/ai-memory" target="_blank" rel="noopener">akitaonrails/ai-memory <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
+          </article>
+          <article class="tool reveal">
+            <div class="tool-top">
+              <span class="icon-badge"><svg class="icon"><use href="#icon-lock"></use></svg></span>
+              <span class="origin origin-3p">Terceiros</span>
+            </div>
+            <h3>ai-jail</h3>
+            <p>Sandbox de sistema operacional para rodar agentes de código com home, chaves, rede e clipboard isolados até você liberar.</p>
+            <span class="cmd">GPL-3.0 · akitaonrails</span>
+            <a class="card-link" href="https://github.com/akitaonrails/ai-jail" target="_blank" rel="noopener">akitaonrails/ai-jail <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
+          </article>
+          <article class="tool reveal">
+            <div class="tool-top">
+              <span class="icon-badge"><svg class="icon"><use href="#icon-gauge"></use></svg></span>
+              <span class="origin origin-3p">Terceiros</span>
+            </div>
+            <h3>ai-usagebar</h3>
+            <p>Barra de cota e uso de IA para TUI e Waybar, nos provedores onde você já tem credencial na máquina.</p>
+            <span class="cmd">MIT · akitaonrails</span>
+            <a class="card-link" href="https://github.com/akitaonrails/ai-usagebar" target="_blank" rel="noopener">akitaonrails/ai-usagebar <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
+          </article>
+        </div>
       </div>
     </div>
   </section>
@@ -352,106 +423,116 @@
     <div class="wrap">
       <div class="eyebrow">Créditos e ecossistema</div>
       <h2>Cada peça tem autoria.</h2>
-      <p class="lead">O aios é o sistema; o que ele usa também é de alguém. Estes são os créditos, projeto por projeto.</p>
-      <div class="credits">
-        <div class="credit reveal">
-          <span class="icon-badge"><svg class="icon"><use href="#icon-cpu"></use></svg></span>
-          <div>
-            <b>aios — sistema operacional, runtime e apps</b>
-            <p>Idealização e desenvolvimento por <strong>Francisco Rodrigues (@rodriguesfas)</strong> e a organização AIOS (@aios-b-612).</p>
-            <span class="who">Rust · sistema e apps próprios</span>
+      <p class="lead">O aios é o sistema; o que ele usa também é de alguém. Primeiro o que é nosso, depois o que veio de fora.</p>
+
+      <div class="group">
+        <div class="group-head"><b>aios · nosso</b><i></i><em>Idealização, sistema e apps próprios</em></div>
+        <div class="credits">
+          <div class="credit reveal">
+            <span class="icon-badge"><svg class="icon"><use href="#icon-cpu"></use></svg></span>
+            <div>
+              <b>aios — sistema operacional, runtime e apps</b>
+              <p>Idealização e desenvolvimento por <strong>Francisco Rodrigues (@rodriguesfas)</strong> e a organização AIOS (@aios-b-612).</p>
+              <span class="who">Rust · sistema e apps próprios</span>
+            </div>
+            <a class="out" href="https://github.com/aios-b-612/aios" target="_blank" rel="noopener">repositório <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
           </div>
-          <a class="out" href="https://github.com/aios-b-612/aios" target="_blank" rel="noopener">repositório <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
+          <div class="credit reveal">
+            <span class="icon-badge"><svg class="icon"><use href="#icon-gateway"></use></svg></span>
+            <div>
+              <b>Laya Gateway</b>
+              <p>Gateway local de roteamento de ferramentas para agentes, com Laya como especialista tipada e fail-open.</p>
+              <span class="who">Organização AIOS · Rust + Next.js</span>
+            </div>
+            <span class="lic">MIT</span>
+          </div>
+          <div class="credit reveal">
+            <span class="icon-badge"><svg class="icon"><use href="#icon-database"></use></svg></span>
+            <div>
+              <b>Web SQLite Admin</b>
+              <p>Administração SQLite open source com interface web e API Rust/Actix, consumida como sidecar pelo hosting Octor.</p>
+              <span class="who">Organização AIOS · Next.js + Rust/Actix</span>
+            </div>
+            <span class="lic">MIT</span>
+          </div>
         </div>
-        <div class="credit reveal">
-          <span class="icon-badge"><svg class="icon"><use href="#icon-gateway"></use></svg></span>
-          <div>
-            <b>Laya Gateway</b>
-            <p>Gateway local de roteamento de ferramentas para agentes, com Laya como especialista tipada e fail-open.</p>
-            <span class="who">Organização AIOS · Rust + Next.js</span>
+      </div>
+
+      <div class="group third">
+        <div class="group-head"><b>Terceiros · de fora</b><i></i><em>Projetos externos que o aios usa ou se inspira</em></div>
+        <div class="credits">
+          <div class="credit reveal">
+            <span class="icon-badge"><svg class="icon"><use href="#icon-memory"></use></svg></span>
+            <div>
+              <b>ai-memory</b>
+              <p>Memória de longo prazo para agentes de código, em binário único Rust, sem chave de API no caminho padrão. Adotada como memória do sistema.</p>
+              <span class="who">akitaonrails</span>
+            </div>
+            <a class="out" href="https://github.com/akitaonrails/ai-memory" target="_blank" rel="noopener">projeto <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
           </div>
-          <span class="lic">MIT</span>
-        </div>
-        <div class="credit reveal">
-          <span class="icon-badge"><svg class="icon"><use href="#icon-database"></use></svg></span>
-          <div>
-            <b>Web SQLite Admin</b>
-            <p>Administração SQLite open source com interface web e API Rust/Actix, consumida como sidecar pelo hosting Octor.</p>
-            <span class="who">Organização AIOS · Next.js + Rust/Actix</span>
+          <div class="credit reveal">
+            <span class="icon-badge"><svg class="icon"><use href="#icon-lock"></use></svg></span>
+            <div>
+              <b>ai-jail</b>
+              <p>Jaula de sistema operacional para rodar agentes de código com home, chaves, rede e clipboard fora do sandbox até você liberar.</p>
+              <span class="who">akitaonrails</span>
+            </div>
+            <a class="out" href="https://github.com/akitaonrails/ai-jail" target="_blank" rel="noopener">projeto <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
           </div>
-          <span class="lic">MIT</span>
-        </div>
-        <div class="credit reveal">
-          <span class="icon-badge"><svg class="icon"><use href="#icon-memory"></use></svg></span>
-          <div>
-            <b>ai-memory</b>
-            <p>Memória de longo prazo para agentes de código, em binário único Rust, sem chave de API no caminho padrão. Adotada como memória do sistema.</p>
-            <span class="who">akitaonrails</span>
+          <div class="credit reveal">
+            <span class="icon-badge"><svg class="icon"><use href="#icon-gauge"></use></svg></span>
+            <div>
+              <b>ai-usagebar</b>
+              <p>Barra de cota e uso de IA para TUI e Waybar, nos provedores onde você já tem credencial na máquina.</p>
+              <span class="who">akitaonrails · inspirado em claudebar/codexbar</span>
+            </div>
+            <a class="out" href="https://github.com/akitaonrails/ai-usagebar" target="_blank" rel="noopener">projeto <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
           </div>
-          <a class="out" href="https://github.com/akitaonrails/ai-memory" target="_blank" rel="noopener">projeto <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
-        </div>
-        <div class="credit reveal">
-          <span class="icon-badge"><svg class="icon"><use href="#icon-lock"></use></svg></span>
-          <div>
-            <b>ai-jail</b>
-            <p>Jaula de sistema operacional para rodar agentes de código com home, chaves, rede e clipboard fora do sandbox até você liberar.</p>
-            <span class="who">akitaonrails</span>
+          <div class="credit reveal">
+            <span class="icon-badge"><svg class="icon"><use href="#icon-network"></use></svg></span>
+            <div>
+              <b>Candle</b>
+              <p>Framework mínimo de ML em Rust usado como backend de inferência CPU do aios.</p>
+              <span class="who">Hugging Face</span>
+            </div>
+            <a class="out" href="https://github.com/huggingface/candle" target="_blank" rel="noopener">projeto <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
           </div>
-          <a class="out" href="https://github.com/akitaonrails/ai-jail" target="_blank" rel="noopener">projeto <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
-        </div>
-        <div class="credit reveal">
-          <span class="icon-badge"><svg class="icon"><use href="#icon-gauge"></use></svg></span>
-          <div>
-            <b>ai-usagebar</b>
-            <p>Barra de cota e uso de IA para TUI e Waybar, nos provedores onde você já tem credencial na máquina.</p>
-            <span class="who">akitaonrails · inspirado em claudebar/codexbar</span>
+          <div class="credit reveal">
+            <span class="icon-badge"><svg class="icon"><use href="#icon-globe"></use></svg></span>
+            <div>
+              <b>Servo</b>
+              <p>Candidata a engine web embarcada do Developer OS, para renderizar painéis, ajuda e docs com a mesma linguagem do sistema.</p>
+              <span class="who">Servo Project</span>
+            </div>
+            <a class="out" href="https://github.com/servo/servo" target="_blank" rel="noopener">projeto <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
           </div>
-          <a class="out" href="https://github.com/akitaonrails/ai-usagebar" target="_blank" rel="noopener">projeto <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
-        </div>
-        <div class="credit reveal">
-          <span class="icon-badge"><svg class="icon"><use href="#icon-network"></use></svg></span>
-          <div>
-            <b>Candle</b>
-            <p>Framework mínimo de ML em Rust usado como backend de inferência CPU do aios.</p>
-            <span class="who">Hugging Face</span>
+          <div class="credit reveal">
+            <span class="icon-badge"><svg class="icon"><use href="#icon-terminal"></use></svg></span>
+            <div>
+              <b>opencode</b>
+              <p>Agente de código open source usado como IDE e harness padrão do fluxo de desenvolvimento.</p>
+              <span class="who">anomalyco (opencode)</span>
+            </div>
+            <a class="out" href="https://opencode.ai" target="_blank" rel="noopener">projeto <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
           </div>
-          <a class="out" href="https://github.com/huggingface/candle" target="_blank" rel="noopener">projeto <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
-        </div>
-        <div class="credit reveal">
-          <span class="icon-badge"><svg class="icon"><use href="#icon-globe"></use></svg></span>
-          <div>
-            <b>Servo</b>
-            <p>Candidata a engine web embarcada do Developer OS, para renderizar painéis, ajuda e docs com a mesma linguagem do sistema.</p>
-            <span class="who">Servo Project</span>
+          <div class="credit reveal">
+            <span class="icon-badge"><svg class="icon"><use href="#icon-doc"></use></svg></span>
+            <div>
+              <b>TinyLlama</b>
+              <p>Modelo base da família tiny SLM do aios, com os arquivos GGUF Q4 usados nas validações.</p>
+              <span class="who">Projeto TinyLlama · GGUF: TheBloke</span>
+            </div>
+            <a class="out" href="https://huggingface.co/TinyLlama" target="_blank" rel="noopener">projeto <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
           </div>
-          <a class="out" href="https://github.com/servo/servo" target="_blank" rel="noopener">projeto <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
-        </div>
-        <div class="credit reveal">
-          <span class="icon-badge"><svg class="icon"><use href="#icon-terminal"></use></svg></span>
-          <div>
-            <b>opencode</b>
-            <p>Agente de código open source usado como IDE e harness padrão do fluxo de desenvolvimento.</p>
-            <span class="who">anomalyco (opencode)</span>
+          <div class="credit reveal">
+            <span class="icon-badge"><svg class="icon"><use href="#icon-spark"></use></svg></span>
+            <div>
+              <b>Obscura</b>
+              <p>Referência visual e de linguagem para esta landing escura e monocromática do aios.</p>
+              <span class="who">obscura.sh</span>
+            </div>
+            <a class="out" href="https://obscura.sh" target="_blank" rel="noopener">referência <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
           </div>
-          <a class="out" href="https://opencode.ai" target="_blank" rel="noopener">projeto <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
-        </div>
-        <div class="credit reveal">
-          <span class="icon-badge"><svg class="icon"><use href="#icon-doc"></use></svg></span>
-          <div>
-            <b>TinyLlama</b>
-            <p>Modelo base da família tiny SLM do aios, com os arquivos GGUF Q4 usados nas validações.</p>
-            <span class="who">Projeto TinyLlama · GGUF: TheBloke</span>
-          </div>
-          <a class="out" href="https://huggingface.co/TinyLlama" target="_blank" rel="noopener">projeto <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
-        </div>
-        <div class="credit reveal">
-          <span class="icon-badge"><svg class="icon"><use href="#icon-spark"></use></svg></span>
-          <div>
-            <b>Obscura</b>
-            <p>Referência visual e de linguagem para esta landing escura e monocromática do aios.</p>
-            <span class="who">obscura.sh</span>
-          </div>
-          <a class="out" href="https://obscura.sh" target="_blank" rel="noopener">referência <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
         </div>
       </div>
     </div>

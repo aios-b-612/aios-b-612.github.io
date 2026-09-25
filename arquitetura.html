@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arquitetura — aios</title>
+<meta name="description" content="Diagramas arquiteturais do aios: camadas do sistema operacional, componentes do runtime, fluxo de uma requisição local e integração dos apps com o daemon.">
+<meta name="theme-color" content="#08080a">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="styles.css">
+<script src="site.js" defer></script>
+</head>
+<body>
+
+<svg class="svg-sprite" aria-hidden="true" focusable="false">
+  <symbol id="icon-arrow-up-right" viewBox="0 0 24 24"><path d="M7 17 17 7M8 7h9v9"/></symbol>
+  <symbol id="icon-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="icon-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="icon-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+  <symbol id="icon-terminal" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="m7 9 3 3-3 3M13 15h4"/></symbol>
+  <symbol id="icon-chip" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 9h6v6H9zM9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/></symbol>
+  <symbol id="icon-cpu" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/></symbol>
+  <symbol id="icon-database" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="7" ry="3"/><path d="M5 5v7c0 1.66 3.13 3 7 3s7-1.34 7-3V5M5 12v7c0 1.66 3.13 3 7 3s7-1.34 7-3v-7"/></symbol>
+  <symbol id="icon-layers" viewBox="0 0 24 24"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 12 9 5 9-5M3 16l9 5 9-5"/></symbol>
+  <symbol id="icon-box" viewBox="0 0 24 24"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Z"/><path d="m4.5 7.8 7.5 4.4 7.5-4.4M12 12.2V21"/></symbol>
+  <symbol id="icon-network" viewBox="0 0 24 24"><circle cx="5" cy="12" r="2.5"/><circle cx="19" cy="5" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="m7.2 10.8 9.6-4.6M7.2 13.2l9.6 4.6"/></symbol>
+  <symbol id="icon-gateway" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="8" rx="2"/><path d="M7 12h.01M11 12h.01M15 12h.01M19 12h.01M7 8V5M17 8V5M7 16v3M17 16v3"/></symbol>
+  <symbol id="icon-pulse" viewBox="0 0 24 24"><path d="M3 12h4l2-6 4 12 2-6h6"/></symbol>
+  <symbol id="icon-spark" viewBox="0 0 24 24"><path d="m12 2 1.6 6.4L20 10l-6.4 1.6L12 18l-1.6-6.4L4 10l6.4-1.6L12 2Z"/></symbol>
+  <symbol id="icon-shield" viewBox="0 0 24 24"><path d="M12 3 20 6v5c0 5-3.4 8.4-8 10-4.6-1.6-8-5-8-10V6l8-3Z"/><path d="m8.5 12 2.2 2.2 4.8-4.8"/></symbol>
+  <symbol id="icon-code" viewBox="0 0 24 24"><path d="m8 9-4 3 4 3M16 9l4 3-4 3M14 5l-4 14"/></symbol>
+  <symbol id="icon-memory" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M9 10h.01M15 10h.01M9.6 14.4c1.5 1.2 3.3 1.2 4.8 0"/></symbol>
+  <symbol id="icon-lock" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></symbol>
+  <symbol id="icon-gauge" viewBox="0 0 24 24"><path d="M4 18a8 8 0 1 1 16 0M12 18l4-6"/></symbol>
+  <symbol id="icon-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.8 5.8 3.8 9S14.5 18.3 12 21c-2.5-2.7-3.8-5.8-3.8-9S9.5 5.7 12 3Z"/></symbol>
+  <symbol id="icon-doc" viewBox="0 0 24 24"><path d="M9 3h6l4 4v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h2Z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></symbol>
+  <symbol id="icon-github" viewBox="0 0 24 24"><path d="M15 22v-3.9c.04-1-.36-1.7-.82-2.1 2.7-.3 5.53-1.33 5.53-6a4.66 4.66 0 0 0-1.24-3.25 4.34 4.34 0 0 0-.1-3.22s-1.02-.33-3.35 1.27a11.62 11.62 0 0 0-6.1 0C6.5 2.21 5.48 2.54 5.48 2.54a4.34 4.34 0 0 0-.1 3.22A4.66 4.66 0 0 0 4.14 9c0 4.66 2.83 5.69 5.53 6-.33.25-.62.71-.72 1.38-.64.28-2.26.83-3.26-1a1.1 1.1 0 0 0-1.2-.57 1.1 1.1 0 0 0-.63 1.77c1.13 1.93 2.58 2.1 4.14 2.1V22"/></symbol>
+</svg>
+
+<header>
+  <div class="wrap nav">
+    <a class="logo" href="index.html" aria-label="aios, início">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <defs>
+          <linearGradient id="logo-grad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#7a3db4"/>
+            <stop offset="50%" stop-color="#715acd"/>
+            <stop offset="100%" stop-color="#4c88dc"/>
+          </linearGradient>
+        </defs>
+        <rect x="2" y="2" width="20" height="20" rx="5" stroke="url(#logo-grad)" stroke-width="1.8"/>
+        <circle cx="12" cy="12" r="3.4" fill="url(#logo-grad)"/>
+      </svg>
+      <b>aios</b>
+    </a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav" aria-label="Abrir menu">
+      <svg class="icon"><use href="#icon-menu"></use></svg>
+      <svg class="icon icon-close"><use href="#icon-close"></use></svg>
+    </button>
+    <nav class="navlinks" id="nav" aria-label="Navegação principal">
+      <a href="index.html#how">Como funciona</a>
+      <a href="index.html#os">O SO</a>
+      <a href="index.html#slm">Tiny SLM</a>
+      <a href="arquitetura.html" aria-current="page">Arquitetura</a>
+      <a href="apps.html">Apps</a>
+    </nav>
+    <div class="navcta">
+      <a class="btn btn-ghost" href="https://github.com/aios-b-612" target="_blank" rel="noopener">Organização</a>
+      <a class="btn btn-brand" href="apps.html">Ver os apps <svg class="icon icon-sm"><use href="#icon-arrow-right"></use></svg></a>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+
+  <section class="hero">
+    <div class="hero-grid"></div>
+    <div class="hero-scan"></div>
+    <div class="wrap">
+      <div class="hero-inner">
+        <div class="reveal">
+          <div class="eyebrow">Arquitetura · aios</div>
+          <h1>Como o aios <span class="grad-text">se sustenta</span>.</h1>
+          <p class="lead">Quatro visões do mesmo sistema: as camadas do SO, os componentes do runtime, o caminho de uma requisição e a forma como os apps se conectam. Tudo local, do hardware ao token.</p>
+          <div class="hero-cta">
+            <a class="btn btn-primary" href="#camadas">Ver os diagramas <svg class="icon icon-sm"><use href="#icon-arrow-right"></use></svg></a>
+            <a class="btn btn-brand" href="https://github.com/aios-b-612/aios/tree/main/edge-ai" target="_blank" rel="noopener">Código do runtime <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
+          </div>
+          <div class="hero-signals">
+            <span><i class="dot-live"></i>SEM NUVEM</span>
+            <span><i class="dot-live"></i>CPU PURA</span>
+            <span><i class="dot-live"></i>RUST</span>
+          </div>
+        </div>
+        <div class="core-panel reveal" aria-label="Diagrama do runtime com o daemon no centro e os crates ao redor">
+          <div class="panel-top"><span>aios / arquitetura</span><span class="bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></div>
+          <div class="core-stage">
+            <div class="stage-grid"></div>
+            <div class="core-orbit"></div>
+            <div class="core-orbit two"></div>
+            <div class="core-orbit three"></div>
+            <div class="core-node"><span>AIOS</span></div>
+            <span class="core-tag t1"><i></i>API</span>
+            <span class="core-tag t2"><i></i>CORE</span>
+            <span class="core-tag t3"><i></i>CANDLE</span>
+            <span class="core-tag t4"><i></i>GGUF</span>
+          </div>
+          <div class="panel-foot">
+            <div><small>MODELO</small><b>Q4_K_M</b></div>
+            <div><small>BACKEND</small><b>CANDLE CPU</b></div>
+            <div><small>REDE</small><b>LOCAL</b></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="camadas">
+    <div class="wrap">
+      <div class="eyebrow">Diagrama 01 · camadas</div>
+      <h2>Do silício ao token.</h2>
+      <p class="lead">O aios é escrito em cima de uma base de sistema operacional e entrega, no topo, apps e agentes que falam com o mesmo runtime local.</p>
+
+      <div class="diagram reveal">
+        <div class="dg-head">
+          <h3>Camadas do sistema</h3>
+          <span class="dg-kind">top-down</span>
+        </div>
+        <p class="dg-sub">Cada camada só depende da de baixo: o app conversa com o runtime, o runtime com o núcleo, o núcleo com o modelo em disco — e o modelo nunca sai do dispositivo.</p>
+        <div class="layer-stack">
+          <article class="layer">
+            <span class="layer-num">05</span>
+            <div>
+              <h3>Apps e agentes</h3>
+              <p>Utilitários abertos que usam o runtime como serviço: roteamento de ferramentas e administração de dados, sem sair da máquina.</p>
+              <div class="chiprow">
+                <span class="chip">Laya Gateway</span>
+                <span class="chip">Web SQLite Admin</span>
+                <span class="chip">agentes</span>
+              </div>
+            </div>
+            <div class="layer-side"><b>AIOS</b>apps próprios</div>
+          </article>
+          <article class="layer">
+            <span class="layer-num">04</span>
+            <div>
+              <h3>Runtime de IA</h3>
+              <p>Daemon, CLIs, núcleo de modelos e SDK: o que o resto do sistema usa para produzir e medir inferência local.</p>
+              <div class="chiprow">
+                <span class="chip">edge-ai</span>
+                <span class="chip">edge</span>
+                <span class="chip">ai</span>
+                <span class="chip">ai-core</span>
+                <span class="chip">ai-inference</span>
+                <span class="chip">edge-sdk</span>
+              </div>
+            </div>
+            <div class="layer-side"><b>RUST</b>binários e crates</div>
+          </article>
+          <article class="layer">
+            <span class="layer-num">03</span>
+            <div>
+              <h3>Userland aios</h3>
+              <p>Shell, terminal, editor e o painel do edge: a experiência do usuário, com os binários do sistema disponíveis desde o boot.</p>
+              <div class="chiprow">
+                <span class="chip">Ion shell</span>
+                <span class="chip">terminal</span>
+                <span class="chip">painel edge</span>
+                <span class="chip">ferramentas do SO</span>
+              </div>
+            </div>
+            <div class="layer-side"><b>USERLAND</b>escrita em Rust</div>
+          </article>
+          <article class="layer">
+            <span class="layer-num">02</span>
+            <div>
+              <h3>Base do sistema</h3>
+              <p>A base de sistema operacional sobre a qual o aios escreve runtime, binários e experiência — sem fork do kernel.</p>
+              <div class="chiprow">
+                <span class="chip">Redox OS</span>
+              </div>
+            </div>
+            <div class="layer-side"><b>BASE</b>microkernel</div>
+          </article>
+          <article class="layer">
+            <span class="layer-num">01</span>
+            <div>
+              <h3>Hardware</h3>
+              <p>Do notebook ao Raspberry Pi: o mesmo código, compilado para x86_64 e aarch64, com inferência em CPU pura.</p>
+              <div class="chiprow">
+                <span class="chip">x86_64</span>
+                <span class="chip">aarch64</span>
+                <span class="chip">Raspberry Pi</span>
+              </div>
+            </div>
+            <div class="layer-side"><b>CPU</b>sem GPU</div>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="componentes">
+    <div class="wrap">
+      <div class="eyebrow">Diagrama 02 · componentes</div>
+      <h2>As peças do runtime.</h2>
+      <p class="lead">Interfaces em cima, serviço no meio, núcleo e dados embaixo. O daemon é o único processo que expõe rede, e ele só escuta o loopback.</p>
+
+      <div class="diagram reveal">
+        <div class="dg-head">
+          <h3>Arquitetura do runtime edge-ai</h3>
+          <span class="dg-kind">camadas de componentes</span>
+        </div>
+        <p class="dg-sub">Rotas reais do daemon: <code>GET /api/health</code>, <code>GET /api/models</code>, <code>POST /api/infer</code>, <code>GET /api/benchmark</code>, <code>GET /api/logs</code> e <code>GET /api/metrics</code>.</p>
+
+        <svg class="dg-svg" viewBox="0 0 960 540" role="img" aria-labelledby="dg2-title dg2-desc">
+          <title id="dg2-title">Arquitetura de componentes do runtime edge-ai</title>
+          <desc id="dg2-desc">Quatro interfaces (CLI edge, CLI ai, SDK e painel web) apontam para o daemon edge-ai, que por sua vez usa os crates aios-core e aios-inference, apoiados no registry local de modelos GGUF.</desc>
+
+          <rect class="frame" x="16" y="40" width="928" height="392" rx="18"></rect>
+          <text class="frame-lbl" x="34" y="66">tudo local · 127.0.0.1</text>
+
+          <text class="cap" x="34" y="96">interfaces</text>
+          <g>
+            <rect class="box" x="30" y="106" width="210" height="62" rx="12"></rect>
+            <text class="nm sm" x="46" y="132">edge</text>
+            <text class="dt" x="46" y="152">CLI do daemon</text>
+
+            <rect class="box" x="260" y="106" width="210" height="62" rx="12"></rect>
+            <text class="nm sm" x="276" y="132">ai</text>
+            <text class="dt" x="276" y="152">modelos e tarefas</text>
+
+            <rect class="box" x="490" y="106" width="210" height="62" rx="12"></rect>
+            <text class="nm sm" x="506" y="132">edge-sdk</text>
+            <text class="dt" x="506" y="152">SDK dos apps</text>
+
+            <rect class="box" x="720" y="106" width="210" height="62" rx="12"></rect>
+            <text class="nm sm" x="736" y="132">painel web</text>
+            <text class="dt" x="736" y="152">GET /</text>
+          </g>
+
+          <path class="edge" d="M135 168 V196 H400"></path>
+          <path class="edge" d="M365 168 V196"></path>
+          <path class="edge hot" d="M595 168 V190"></path>
+          <path class="edge" d="M825 168 V196 H560"></path>
+          <text class="lbl on" x="604" y="184">stdio · http</text>
+
+          <rect class="box hot" x="270" y="196" width="420" height="78" rx="12"></rect>
+          <text class="nm" x="292" y="226">edge-ai · daemon</text>
+          <text class="dt" x="292" y="248">API JSON · bind-first · painel e métricas · bin/edge-ai</text>
+          <text class="lbl on" x="292" y="266">127.0.0.1:8989</text>
+
+          <path class="edge hot" d="M420 274 V310 H300 V322"></path>
+          <path class="edge hot" d="M540 274 V310 H660 V322"></path>
+
+          <text class="cap" x="34" y="330">núcleo</text>
+          <rect class="box" x="30" y="322" width="540" height="62" rx="12"></rect>
+          <text class="nm sm" x="46" y="348">ai-core</text>
+          <text class="dt" x="46" y="368">GGUF · registry.tsv · cache · SHA-256</text>
+
+          <rect class="box" x="590" y="322" width="340" height="62" rx="12"></rect>
+          <text class="nm sm" x="606" y="348">ai-inference</text>
+          <text class="dt" x="606" y="368">Candle CPU · streaming</text>
+
+          <path class="edge data" d="M300 384 V424"></path>
+          <path class="edge data" d="M760 384 V424"></path>
+
+          <rect class="box data" x="30" y="424" width="900" height="66" rx="12"></rect>
+          <text class="nm sm" x="46" y="452">modelos GGUF Q4_K_M</text>
+          <text class="dt" x="46" y="474">/var/lib/ai/models · /var/lib/ai/registry.tsv — leitura local, sem chamada de rede</text>
+          <circle class="glowdot" cx="906" cy="457" r="4"></circle>
+
+          <text class="lbl" x="34" y="518">API: /api/health · /api/models · /api/infer · /api/benchmark · /api/logs · /api/metrics</text>
+        </svg>
+
+        <div class="dg-legend">
+          <span><i class="brand"></i>fluxo principal</span>
+          <span><i class="dash"></i>ligação por crate ou stdio</span>
+          <span><i></i>dado local em disco</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="fluxo">
+    <div class="wrap">
+      <div class="eyebrow">Diagrama 03 · fluxo</div>
+      <h2>O caminho de uma requisição.</h2>
+      <p class="lead">Do prompt que o app envia ao token que sai do modelo, sem sair do processo e sem sair da máquina.</p>
+
+      <div class="diagram reveal">
+        <div class="dg-head">
+          <h3>Fluxo de inferência</h3>
+          <span class="dg-kind">sequência</span>
+        </div>
+        <p class="dg-sub">O roteamento do Laya é opcional: se a pergunta tipada não trouxer resposta, a requisição segue intacta para o modelo — o fluxo nunca para.</p>
+
+        <div class="rail">
+          <span class="rail-pkt" aria-hidden="true"></span>
+          <div class="rail-steps">
+            <div>
+              <div class="step-node">01</div>
+              <div class="step-card">
+                <h4>Entrada</h4>
+                <p>App ou agente chama o daemon com o prompt e o nome do modelo.</p>
+                <code>POST /api/infer</code>
+              </div>
+            </div>
+            <div>
+              <div class="step-node">02</div>
+              <div class="step-card">
+                <h4>Roteamento</h4>
+                <p>Laya decide a ferramenta com uma pergunta tipada; fail-open se não souber.</p>
+                <code>qual ferramenta?</code>
+              </div>
+            </div>
+            <div>
+              <div class="step-node">03</div>
+              <div class="step-card">
+                <h4>Resolução</h4>
+                <p>O core acha o modelo no registry, confere o SHA-256 e usa o cache.</p>
+                <code>registry.tsv</code>
+              </div>
+            </div>
+            <div>
+              <div class="step-node">04</div>
+              <div class="step-card">
+                <h4>Carregamento</h4>
+                <p>GGUF quantizado é mapeado em memória; o tempo de load entra na métrica.</p>
+                <code>load_ms</code>
+              </div>
+            </div>
+            <div>
+              <div class="step-node">05</div>
+              <div class="step-card">
+                <h4>Inferência</h4>
+                <p>Candle gera token a token em CPU pura, com streaming para quem chamou.</p>
+                <code>stream · Candle CPU</code>
+              </div>
+            </div>
+            <div>
+              <div class="step-node">06</div>
+              <div class="step-card">
+                <h4>Resposta</h4>
+                <p>Texto gerado mais as métricas do device: tokens, tps e tempo de load.</p>
+                <code>tokens · tps · load_ms</code>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dg-legend">
+          <span><i class="brand"></i>percurso do prompt</span>
+          <span><i class="dash"></i>etapas internas do processo</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="integracao">
+    <div class="wrap">
+      <div class="eyebrow">Diagrama 04 · integração</div>
+      <h2>Onde os apps entram.</h2>
+      <p class="lead">Cada app próprio conversa com uma parte diferente do runtime — e nenhum dos dois depende de serviço externo.</p>
+
+      <div class="diagram reveal">
+        <div class="dg-head">
+          <h3>Integração dos apps com o daemon</h3>
+          <span class="dg-kind">ponto a ponto</span>
+        </div>
+        <p class="dg-sub">O Laya entra pela frente, como proxy do endpoint de inferência. O Web SQLite Admin entra pelo lado dos dados, abrindo os bancos locais direto pelo rusqlite.</p>
+
+        <div class="hub-wrap">
+          <article class="hub-card">
+            <span class="icon-badge"><svg class="icon"><use href="#icon-gateway"></use></svg></span>
+            <h4>Laya Gateway</h4>
+            <p>Proxy local entre o agente e o modelo: pergunta tipada à especialista, repassa o resto da requisição sem alterar o formato.</p>
+            <div class="hub-wire">
+              <span>fala com o daemon em <b>POST /api/infer</b></span>
+              <span>formato de entrada <b>compatível com OpenAI</b></span>
+              <span>ponto local padrão <b>127.0.0.1:8790</b></span>
+              <span>comportamento <b>fail-open</b></span>
+            </div>
+          </article>
+          <article class="hub-card">
+            <span class="icon-badge"><svg class="icon"><use href="#icon-database"></use></svg></span>
+            <h4>Web SQLite Admin</h4>
+            <p>Administração de dados com API própria em Rust/Actix: o app é dono do seu banco e conversa direto com o arquivo, sem passar pelo daemon.</p>
+            <div class="hub-wire">
+              <span>acesso a dados por <b>rusqlite</b></span>
+              <span>superfície web <b>Next.js</b></span>
+              <span>distribuição <b>sidecar em imagem única</b></span>
+              <span>mesmo host, processo separado</span>
+            </div>
+          </article>
+          <div class="hub-core">
+            <h4>Runtime edge-ai</h4>
+            <p>Um processo, loopback apenas. Os apps entram por contratos diferentes e nenhum deles altera o caminho do outro.</p>
+            <div class="chips">
+              <span class="chip">API JSON</span>
+              <span class="chip">painel</span>
+              <span class="chip">métricas</span>
+              <span class="chip">CPU pura</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="dg-legend">
+          <span><i class="brand"></i>superfície do sistema</span>
+          <span><i class="dash"></i>contrato entre app e runtime</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta">
+    <div class="wrap">
+      <h2>Quer ver o código por trás disso?</h2>
+      <p class="lead" style="margin:0 auto 30px">O runtime inteiro — daemon, CLIs, core de modelos e SDK — é Rust aberto, em um repositório só.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="https://github.com/aios-b-612/aios" target="_blank" rel="noopener">Abrir no GitHub <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
+        <a class="btn btn-brand" href="apps.html">Ver os apps <svg class="icon icon-sm"><use href="#icon-arrow-right"></use></svg></a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <pre>{
+  "copyright": "© 2026 aios-b-612. Todos os direitos reservados.",
+  "code": ["https://github.com/aios-b-612/aios"],
+  "site": ["aios-b-612.github.io"]
+}</pre>
+    <nav aria-label="Links do rodapé">
+      <a href="index.html">Início</a> ·
+      <a href="arquitetura.html">Arquitetura</a> ·
+      <a href="apps.html">Apps</a> ·
+      <a href="https://github.com/aios-b-612/aios" target="_blank" rel="noopener">GitHub</a> ·
+      <a href="https://github.com/aios-b-612/aios/blob/main/docs/ROADMAP.md" target="_blank" rel="noopener">Roadmap</a>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>

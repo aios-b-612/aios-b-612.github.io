@@ -61,6 +61,7 @@
       <a href="index.html#how">Como funciona</a>
       <a href="index.html#os">O SO</a>
       <a href="index.html#slm">Tiny SLM</a>
+      <a href="arquitetura.html">Arquitetura</a>
       <a href="apps.html">Apps</a>
     </nav>
     <div class="navcta">
@@ -415,6 +416,87 @@
             <a class="card-link" href="https://github.com/akitaonrails/ai-usagebar" target="_blank" rel="noopener">akitaonrails/ai-usagebar <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
           </article>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="arquitetura">
+    <div class="wrap">
+      <div class="eyebrow">Arquitetura</div>
+      <h2>Diagramas do sistema, em código aberto.</h2>
+      <p class="lead">Camadas do SO, componentes do runtime, fluxo de uma requisição e integração dos apps — desenhados com as rotas e os crates reais do repositório.</p>
+      <div class="diagram reveal">
+        <div class="dg-head">
+          <h3>Camadas do sistema</h3>
+          <span class="dg-kind">prévia</span>
+        </div>
+        <p class="dg-sub">Apps e agentes em cima, runtime de IA no meio, userland, base do SO e hardware embaixo. Cada camada só depende da de baixo.</p>
+        <div class="layer-stack">
+          <article class="layer">
+            <span class="layer-num">05</span>
+            <div>
+              <h3>Apps e agentes</h3>
+              <div class="chiprow">
+                <span class="chip">Laya Gateway</span>
+                <span class="chip">Web SQLite Admin</span>
+              </div>
+            </div>
+            <div class="layer-side"><b>AIOS</b>apps próprios</div>
+          </article>
+          <article class="layer">
+            <span class="layer-num">04</span>
+            <div>
+              <h3>Runtime de IA</h3>
+              <div class="chiprow">
+                <span class="chip">edge-ai</span>
+                <span class="chip">edge</span>
+                <span class="chip">ai</span>
+                <span class="chip">ai-core</span>
+                <span class="chip">ai-inference</span>
+                <span class="chip">edge-sdk</span>
+              </div>
+            </div>
+            <div class="layer-side"><b>RUST</b>127.0.0.1:8989</div>
+          </article>
+          <article class="layer">
+            <span class="layer-num">03</span>
+            <div>
+              <h3>Userland aios</h3>
+              <div class="chiprow">
+                <span class="chip">Ion shell</span>
+                <span class="chip">terminal</span>
+                <span class="chip">painel edge</span>
+              </div>
+            </div>
+            <div class="layer-side"><b>USERLAND</b>Rust</div>
+          </article>
+          <article class="layer">
+            <span class="layer-num">02</span>
+            <div>
+              <h3>Base do sistema</h3>
+              <div class="chiprow">
+                <span class="chip">Redox OS</span>
+              </div>
+            </div>
+            <div class="layer-side"><b>BASE</b>microkernel</div>
+          </article>
+          <article class="layer">
+            <span class="layer-num">01</span>
+            <div>
+              <h3>Hardware</h3>
+              <div class="chiprow">
+                <span class="chip">x86_64</span>
+                <span class="chip">aarch64</span>
+                <span class="chip">Raspberry Pi</span>
+              </div>
+            </div>
+            <div class="layer-side"><b>CPU</b>sem GPU</div>
+          </article>
+        </div>
+      </div>
+      <div class="hero-cta reveal">
+        <a class="btn btn-brand" href="arquitetura.html">Ver os quatro diagramas <svg class="icon icon-sm"><use href="#icon-arrow-right"></use></svg></a>
+        <a class="btn btn-primary" href="https://github.com/aios-b-612/aios/tree/main/edge-ai" target="_blank" rel="noopener">Código do runtime <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
       </div>
     </div>
   </section>

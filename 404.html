@@ -4,18 +4,29 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>404 — aios</title>
-<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
 <style>
   body{
     margin:0;min-height:100vh;display:grid;place-items:center;
-    background:#0a0a0b;color:#ededf0;
+    background:
+      radial-gradient(700px 420px at 70% 0%,rgba(122,61,180,.22),transparent 62%),
+      radial-gradient(600px 380px at 20% 100%,rgba(76,136,220,.16),transparent 62%),
+      #08080a;
+    color:#ededf0;
     font-family:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
     text-align:center;
   }
-  h1{font-size:clamp(60px,14vw,140px);margin:0;letter-spacing:-.04em}
+  h1{
+    font-size:clamp(60px,14vw,140px);margin:0;letter-spacing:-.04em;
+    background:linear-gradient(90deg,#7a3db4,#715acd 45%,#4c88dc);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
   p{color:#9a9aa3;margin:14px 0 30px}
-  a{color:#ededf0;text-decoration:none;border:1px solid #232327;border-radius:999px;padding:9px 18px;font-size:13px;display:inline-block}
-  a:hover{border-color:#9a9aa3}
+  a{
+    color:#9cc0ec;text-decoration:none;border:1px solid rgba(113,90,205,.55);
+    border-radius:999px;padding:9px 18px;font-size:13px;display:inline-block;transition:.15s ease;
+  }
+  a:hover{border-color:#4c88dc;color:#fff}
 </style>
 </head>
 <body>

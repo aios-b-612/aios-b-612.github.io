@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Apps — aios</title>
+<meta name="description" content="Os apps que estamos construindo para o aios: Laya Gateway, Web SQLite Admin e as ferramentas nativas do sistema.">
+<meta name="theme-color" content="#08080a">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="styles.css">
+<script src="site.js" defer></script>
+</head>
+<body>
+
+<svg class="svg-sprite" aria-hidden="true" focusable="false">
+  <symbol id="icon-arrow-up-right" viewBox="0 0 24 24"><path d="M7 17 17 7M8 7h9v9"/></symbol>
+  <symbol id="icon-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="icon-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="icon-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+  <symbol id="icon-terminal" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="m7 9 3 3-3 3M13 15h4"/></symbol>
+  <symbol id="icon-chip" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 9h6v6H9zM9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/></symbol>
+  <symbol id="icon-cpu" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/></symbol>
+  <symbol id="icon-database" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="7" ry="3"/><path d="M5 5v7c0 1.66 3.13 3 7 3s7-1.34 7-3V5M5 12v7c0 1.66 3.13 3 7 3s7-1.34 7-3v-7"/></symbol>
+  <symbol id="icon-layers" viewBox="0 0 24 24"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 12 9 5 9-5M3 16l9 5 9-5"/></symbol>
+  <symbol id="icon-box" viewBox="0 0 24 24"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Z"/><path d="m4.5 7.8 7.5 4.4 7.5-4.4M12 12.2V21"/></symbol>
+  <symbol id="icon-network" viewBox="0 0 24 24"><circle cx="5" cy="12" r="2.5"/><circle cx="19" cy="5" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="m7.2 10.8 9.6-4.6M7.2 13.2l9.6 4.6"/></symbol>
+  <symbol id="icon-gateway" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="8" rx="2"/><path d="M7 12h.01M11 12h.01M15 12h.01M19 12h.01M7 8V5M17 8V5M7 16v3M17 16v3"/></symbol>
+  <symbol id="icon-pulse" viewBox="0 0 24 24"><path d="M3 12h4l2-6 4 12 2-6h6"/></symbol>
+  <symbol id="icon-spark" viewBox="0 0 24 24"><path d="m12 2 1.6 6.4L20 10l-6.4 1.6L12 18l-1.6-6.4L4 10l6.4-1.6L12 2Z"/></symbol>
+  <symbol id="icon-shield" viewBox="0 0 24 24"><path d="M12 3 20 6v5c0 5-3.4 8.4-8 10-4.6-1.6-8-5-8-10V6l8-3Z"/><path d="m8.5 12 2.2 2.2 4.8-4.8"/></symbol>
+  <symbol id="icon-code" viewBox="0 0 24 24"><path d="m8 9-4 3 4 3M16 9l4 3-4 3M14 5l-4 14"/></symbol>
+  <symbol id="icon-memory" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M9 10h.01M15 10h.01M9.6 14.4c1.5 1.2 3.3 1.2 4.8 0"/></symbol>
+  <symbol id="icon-lock" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></symbol>
+  <symbol id="icon-gauge" viewBox="0 0 24 24"><path d="M4 18a8 8 0 1 1 16 0M12 18l4-6"/></symbol>
+  <symbol id="icon-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.8 5.8 3.8 9S14.5 18.3 12 21c-2.5-2.7-3.8-5.8-3.8-9S9.5 5.7 12 3Z"/></symbol>
+  <symbol id="icon-doc" viewBox="0 0 24 24"><path d="M9 3h6l4 4v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h2Z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></symbol>
+  <symbol id="icon-github" viewBox="0 0 24 24"><path d="M15 22v-3.9c.04-1-.36-1.7-.82-2.1 2.7-.3 5.53-1.33 5.53-6a4.66 4.66 0 0 0-1.24-3.25 4.34 4.34 0 0 0-.1-3.22s-1.02-.33-3.35 1.27a11.62 11.62 0 0 0-6.1 0C6.5 2.21 5.48 2.54 5.48 2.54a4.34 4.34 0 0 0-.1 3.22A4.66 4.66 0 0 0 4.14 9c0 4.66 2.83 5.69 5.53 6-.33.25-.62.71-.72 1.38-.64.28-2.26.83-3.26-1a1.1 1.1 0 0 0-1.2-.57 1.1 1.1 0 0 0-.63 1.77c1.13 1.93 2.58 2.1 4.14 2.1V22"/></symbol>
+</svg>
+
+<header>
+  <div class="wrap nav">
+    <a class="logo" href="index.html" aria-label="aios, início">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <defs>
+          <linearGradient id="logo-grad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#7a3db4"/>
+            <stop offset="50%" stop-color="#715acd"/>
+            <stop offset="100%" stop-color="#4c88dc"/>
+          </linearGradient>
+        </defs>
+        <rect x="2" y="2" width="20" height="20" rx="5" stroke="url(#logo-grad)" stroke-width="1.8"/>
+        <circle cx="12" cy="12" r="3.4" fill="url(#logo-grad)"/>
+      </svg>
+      <b>aios</b>
+    </a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav" aria-label="Abrir menu">
+      <svg class="icon"><use href="#icon-menu"></use></svg>
+      <svg class="icon icon-close"><use href="#icon-close"></use></svg>
+    </button>
+    <nav class="navlinks" id="nav" aria-label="Navegação principal">
+      <a href="index.html#how">Como funciona</a>
+      <a href="index.html#os">O SO</a>
+      <a href="index.html#slm">Tiny SLM</a>
+      <a href="apps.html" aria-current="page">Apps</a>
+    </nav>
+    <div class="navcta">
+      <a class="btn btn-ghost" href="https://github.com/aios-b-612" target="_blank" rel="noopener">Organização</a>
+      <a class="btn btn-brand" href="#catalog">Ver apps <svg class="icon icon-sm"><use href="#icon-arrow-right"></use></svg></a>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+
+  <section class="hero">
+    <div class="hero-grid"></div>
+    <div class="hero-scan"></div>
+    <div class="wrap">
+      <div class="hero-inner">
+        <div class="reveal">
+          <div class="eyebrow">Apps · ecossistema aios</div>
+          <h1>Os apps que estamos <span class="grad-text">construindo</span>.</h1>
+          <p class="lead">Cada app do aios nasce de uma fricção real do fluxo local: decidir a ferramenta certa antes de gastar tokens, e manter os dados sob controle. Tudo open source, tudo offline.</p>
+          <div class="hero-cta">
+            <a class="btn btn-primary" href="#catalog">Explorar os apps <svg class="icon icon-sm"><use href="#icon-arrow-right"></use></svg></a>
+            <a class="btn btn-brand" href="https://github.com/aios-b-612" target="_blank" rel="noopener">Ver a organização <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
+          </div>
+          <div class="hero-signals">
+            <span><i class="dot-live"></i>OPEN SOURCE</span>
+            <span><i class="dot-live"></i>LOCAL-FIRST</span>
+            <span><i class="dot-live"></i>EM CONSTRUÇÃO</span>
+          </div>
+        </div>
+        <div class="core-panel reveal" aria-label="Diagrama de apps conectados ao runtime">
+          <div class="panel-top"><span>aios / apps</span><span class="bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></div>
+          <div class="core-stage">
+            <div class="stage-grid"></div>
+            <div class="core-orbit"></div>
+            <div class="core-orbit two"></div>
+            <div class="core-orbit three"></div>
+            <div class="core-node"><span>AIOS</span></div>
+            <span class="core-tag t1"><i></i>LAYA</span>
+            <span class="core-tag t2"><i></i>SQLITE</span>
+            <span class="core-tag t3"><i></i>CORE</span>
+            <span class="core-tag t4"><i></i>API</span>
+          </div>
+          <div class="panel-foot">
+            <div><small>MODE</small><b>LOCAL</b></div>
+            <div><small>FLOW</small><b>VISIBLE</b></div>
+            <div><small>ACCESS</small><b>OPEN</b></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="catalog">
+    <div class="wrap">
+      <div class="eyebrow">Catálogo</div>
+      <h2>Ferramentas com intenção.</h2>
+      <p class="lead">Dois apps já em construção, ambos abertos, ambos escritos para viver dentro do mesmo runtime local do aios.</p>
+
+      <article class="app-card reveal" id="laya-gateway">
+        <div class="app-main">
+          <div class="app-head">
+            <span class="icon-badge"><svg class="icon"><use href="#icon-gateway"></use></svg></span>
+            <div>
+              <span class="tag">01 · AGENT INFRASTRUCTURE</span>
+              <h3>Laya Gateway</h3>
+              <p class="app-status"><i></i>Em construção · MIT · open source</p>
+            </div>
+          </div>
+          <p class="app-desc">Um gateway local que pergunta à <strong>Laya</strong> — uma especialista minúscula que só responde perguntas tipadas como “qual ferramenta?” ou “sim/não?”, com score de confiança — qual ferramenta o agente deve chamar. Se ela não souber, a requisição segue intacta para o seu modelo habitual. O agente ganha roteamento sem transformar toda decisão em uma chamada cara.</p>
+          <div class="flow" aria-label="Fluxo do Laya Gateway">
+            <span class="flow-node"><svg class="icon icon-sm"><use href="#icon-terminal"></use></svg>AGENTE</span>
+            <span class="flow-line"></span>
+            <span class="flow-node on"><svg class="icon icon-sm"><use href="#icon-gateway"></use></svg>LAYA</span>
+            <span class="flow-line"></span>
+            <span class="flow-node"><svg class="icon icon-sm"><use href="#icon-spark"></use></svg>SEU LLM</span>
+          </div>
+          <a class="card-link" href="https://github.com/aios-b-612/laya-gateway" target="_blank" rel="noopener">github.com/aios-b-612/laya-gateway <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
+        </div>
+        <div class="app-side">
+          <div><span class="label">STACK</span><b>Rust + Actix + Next.js</b></div>
+          <div><span class="label">DESTAQUE</span><b>Fail-open por design</b></div>
+          <div><span class="label">ENDPOINTS</span><b>OpenAI-compatible</b></div>
+          <div><span class="label">PAINEL</span><b>Dashboard local</b></div>
+        </div>
+      </article>
+
+      <article class="app-card reveal" id="web-sqlite-admin">
+        <div class="app-main">
+          <div class="app-head">
+            <span class="icon-badge"><svg class="icon"><use href="#icon-database"></use></svg></span>
+            <div>
+              <span class="tag">02 · DATA CONTROL</span>
+              <h3>Web SQLite Admin</h3>
+              <p class="app-status"><i></i>Em construção · MIT · open source</p>
+            </div>
+          </div>
+          <p class="app-desc">Administração <strong>open source</strong> de bancos SQLite com frontend Next.js e API Rust/Actix (rusqlite). Login por senha, bases, tabelas, busca, CRUD, schema, importação, exportação, VACUUM/integridade e console SQL em um só lugar — e roda como sidecar local, também consumido pelo hosting Octor.</p>
+          <div class="flow" aria-label="Fluxo do Web SQLite Admin">
+            <span class="flow-node"><svg class="icon icon-sm"><use href="#icon-code"></use></svg>WEB UI</span>
+            <span class="flow-line"></span>
+            <span class="flow-node on"><svg class="icon icon-sm"><use href="#icon-terminal"></use></svg>RUST API</span>
+            <span class="flow-line"></span>
+            <span class="flow-node"><svg class="icon icon-sm"><use href="#icon-database"></use></svg>SQLITE</span>
+          </div>
+          <a class="card-link" href="https://github.com/aios-b-612/web-sqlite-admin" target="_blank" rel="noopener">github.com/aios-b-612/web-sqlite-admin <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
+        </div>
+        <div class="app-side">
+          <div><span class="label">STACK</span><b>Next.js + Actix</b></div>
+          <div><span class="label">DESTAQUE</span><b>Console SQL completo</b></div>
+          <div><span class="label">DISTRIBUIÇÃO</span><b>Sidecar em imagem única</b></div>
+          <div><span class="label">CONSUMIDOR</span><b>Hosting Octor</b></div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="stack">
+    <div class="wrap">
+      <div class="eyebrow">Integração</div>
+      <h2>Apps que conversam com o sistema.</h2>
+      <p class="lead">Cada app é mais útil quando conversa com o restante do aios. O runtime é a camada comum entre decisão, dados e execução.</p>
+      <div class="stack-diagram">
+        <div class="stack-item reveal">
+          <span class="icon-badge"><svg class="icon"><use href="#icon-gateway"></use></svg></span>
+          <p class="role">ROTEAR</p>
+          <strong>Laya Gateway</strong>
+          <small>decide o caminho antes do LLM</small>
+        </div>
+        <div class="stack-item core reveal">
+          <span class="icon-badge"><svg class="icon"><use href="#icon-cpu"></use></svg></span>
+          <p class="role">OPERAR</p>
+          <strong>aios core</strong>
+          <small>modelos, tarefas e API local</small>
+        </div>
+        <div class="stack-item reveal">
+          <span class="icon-badge"><svg class="icon"><use href="#icon-database"></use></svg></span>
+          <p class="role">CONTROLAR</p>
+          <strong>Web SQLite Admin</strong>
+          <small>dados e infraestrutura</small>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="panel reveal">
+          <div class="card-head"><span class="icon-badge"><svg class="icon"><use href="#icon-shield"></use></svg></span><h3>Controle local</h3></div>
+          <p>As ferramentas priorizam dados e decisões que ficam sob a sua superfície de controle: nada de prompt ou consulta indo embora por padrão.</p>
+        </div>
+        <div class="panel reveal">
+          <div class="card-head"><span class="icon-badge"><svg class="icon"><use href="#icon-code"></use></svg></span><h3>Código aberto</h3></div>
+          <p>Você pode ler, estender e contribuir. Os dois apps são MIT e vivem em repositórios públicos da organização.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="native">
+    <div class="wrap">
+      <div class="eyebrow">Ferramentas nativas</div>
+      <h2>O que já vem no sistema.</h2>
+      <p class="lead">Antes dos apps, o runtime: daemon, CLIs, core de modelos e SDK — todos crates próprios em Rust, no mesmo repositório.</p>
+      <div class="tool-grid">
+        <article class="tool reveal">
+          <span class="icon-badge"><svg class="icon"><use href="#icon-pulse"></use></svg></span>
+          <h3>edge-ai</h3>
+          <p>Daemon HTTP local com API JSON, inferência, benchmark, logs, métricas e painel web num binário só.</p>
+          <span class="cmd">~8 MB</span>
+          <a class="card-link" href="https://github.com/aios-b-612/aios/tree/main/edge-ai" target="_blank" rel="noopener">crate edge-ai <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
+        </article>
+        <article class="tool reveal">
+          <span class="icon-badge"><svg class="icon"><use href="#icon-terminal"></use></svg></span>
+          <h3>edge &amp; ai</h3>
+          <p><code>edge</code> para status, models, run, benchmark, logs, monitor e serve. <code>ai</code> para install, run, doctor e <code>ai task</code> (summarize, classify, intent, translate, qa).</p>
+          <span class="cmd">edge status · ai task</span>
+          <a class="card-link" href="https://github.com/aios-b-612/aios/tree/main/cli/ai" target="_blank" rel="noopener">crate aios-cli <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
+        </article>
+        <article class="tool reveal">
+          <span class="icon-badge"><svg class="icon"><use href="#icon-box"></use></svg></span>
+          <h3>ai-core &amp; ai-inference</h3>
+          <p>Parser GGUF com streaming, SHA-256, cache e registry TSV, com backend de inferência Candle CPU por baixo.</p>
+          <span class="cmd">aios-core · aios-inference</span>
+          <a class="card-link" href="https://github.com/aios-b-612/aios/tree/main/ai-core" target="_blank" rel="noopener">ai-core <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
+          <a class="card-link" href="https://github.com/aios-b-612/aios/tree/main/ai-inference" target="_blank" rel="noopener">ai-inference <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
+        </article>
+        <article class="tool reveal">
+          <span class="icon-badge"><svg class="icon"><use href="#icon-layers"></use></svg></span>
+          <h3>edge-sdk</h3>
+          <p>SDK dos apps de borda: carrega um modelo do registry e gera tokens com métricas de TPS e tempo de load.</p>
+          <span class="cmd">generate_with_metrics</span>
+          <a class="card-link" href="https://github.com/aios-b-612/aios/tree/main/edge-sdk" target="_blank" rel="noopener">crate aios-sdk <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
+        </article>
+        <article class="tool reveal">
+          <span class="icon-badge"><svg class="icon"><use href="#icon-network"></use></svg></span>
+          <h3>ai-memory</h3>
+          <p>Memória de longo prazo para os agentes do sistema, em binário único Rust, sem chave de API no caminho padrão.</p>
+          <span class="cmd">projeto de akitaonrails</span>
+          <a class="card-link" href="https://github.com/akitaonrails/ai-memory" target="_blank" rel="noopener">projeto <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
+        </article>
+        <article class="tool reveal">
+          <span class="icon-badge"><svg class="icon"><use href="#icon-lock"></use></svg></span>
+          <h3>ai-jail &amp; ai-usagebar</h3>
+          <p>Sandbox de sistema operacional para os agentes e a barra de cota dos provedores, ambos em Rust por akitaonrails.</p>
+          <span class="cmd">projetos de akitaonrails</span>
+          <a class="card-link" href="https://github.com/akitaonrails/ai-jail" target="_blank" rel="noopener">ai-jail <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
+          <a class="card-link" href="https://github.com/akitaonrails/ai-usagebar" target="_blank" rel="noopener">ai-usagebar <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta">
+    <div class="wrap">
+      <h2>O próximo app também pode ser seu.</h2>
+      <p class="lead" style="margin:0 auto 30px">A plataforma está desenhada para que novos utilitários, agentes e integrações compartilhem o mesmo runtime local.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="https://github.com/aios-b-612" target="_blank" rel="noopener">Explorar a organização <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
+        <a class="btn btn-brand" href="index.html">Voltar para o sistema <svg class="icon icon-sm"><use href="#icon-arrow-right"></use></svg></a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <pre>{
+  "copyright": "© 2026 aios-b-612. Todos os direitos reservados.",
+  "code": ["https://github.com/aios-b-612/aios"],
+  "apps": ["laya-gateway", "web-sqlite-admin"]
+}</pre>
+    <nav aria-label="Links do rodapé">
+      <a href="index.html">Início</a> ·
+      <a href="https://github.com/aios-b-612/aios" target="_blank" rel="noopener">GitHub</a> ·
+      <a href="https://github.com/aios-b-612/aios/blob/main/docs/ROADMAP.md" target="_blank" rel="noopener">Roadmap</a> ·
+      <a href="https://github.com/aios-b-612/aios/issues" target="_blank" rel="noopener">Issues</a>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>

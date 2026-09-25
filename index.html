@@ -9,6 +9,11 @@
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="styles.css">
 <script src="site.js" defer></script>
+
+<style>
+  .reveal{animation: card-in .6s ease forwards; animation-delay: .1s}
+  .step-node{animation: pulse-slow 4s ease-in-out infinite}
+</style>
 </head>
 <body>
 
@@ -78,7 +83,7 @@
     <div class="hero-scan"></div>
     <div class="wrap">
       <div class="hero-inner">
-        <div class="reveal">
+        <div class="reveal" style="animation: card-in .6s ease forwards; animation-delay: .1s">
           <div class="eyebrow">Edge AI OS · Rust · Redox</div>
           <h1>Dê a cada dispositivo a sua própria <span class="grad-text">IA</span>.</h1>
           <p class="lead">Um sistema operacional desktop e de borda, escrito em Rust, com inferência de tiny models 100% local. Sem nuvem. Sem GPU. Sem atrito.</p>

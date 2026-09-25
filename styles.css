@@ -469,6 +469,7 @@ p{color:var(--fg-dim)}
 
 /* fluxo de requisição */
 .rail{position:relative;margin-top:30px}
+.rail-steps.five{grid-template-columns:repeat(5,1fr)}
 .rail::before{
   position:absolute;left:0;right:0;top:19px;height:1px;content:"";
   background:linear-gradient(90deg,rgba(122,61,180,.15),var(--brand-indigo) 20%,var(--brand-blue) 78%,rgba(76,136,220,.12));
@@ -492,6 +493,19 @@ p{color:var(--fg-dim)}
 .step-card p{font-size:12.5px;color:var(--fg-dim)}
 .step-card code{display:block;margin-top:10px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:rgba(0,0,0,.45);color:var(--brand-sky);font-size:11px;word-break:break-all}
 @keyframes pkt{0%{left:0;opacity:0}6%{opacity:1}94%{opacity:1}100%{left:100%;opacity:0}}
+
+/* ciclo de vida do modelo */
+.lc-remove{
+  position:relative;margin-top:26px;padding:18px 20px;
+  border:1px dashed var(--line-bright);border-radius:12px;background:rgba(0,0,0,.28);
+}
+.lc-remove::before{
+  position:absolute;top:-14px;left:34px;width:1px;height:14px;content:"";
+  background:repeating-linear-gradient(180deg,var(--line-bright) 0 4px,transparent 4px 8px);
+}
+.lc-remove-head{display:flex;align-items:flex-start;gap:14px}
+.lc-remove-head b{font-size:14.5px;color:var(--brand-sky)}
+.lc-remove-head p{margin-top:5px;font-size:13px;color:var(--fg-dim);max-width:70ch}
 
 /* integração dos apps */
 .hub-wrap{position:relative;margin-top:26px;display:grid;gap:16px;grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -545,6 +559,7 @@ footer{border-top:1px solid var(--line);padding:44px 0;color:var(--fg-faint);fon
   .hero-inner{grid-template-columns:1fr}
   .tool-grid{grid-template-columns:repeat(2,1fr)}
   .rail-steps{grid-template-columns:repeat(3,1fr);row-gap:26px}
+  .rail-steps.five{grid-template-columns:repeat(3,1fr)}
   .rail::before{display:none}
   .hub-wrap{grid-template-columns:1fr}
 }
@@ -577,6 +592,7 @@ footer{border-top:1px solid var(--line);padding:44px 0;color:var(--fg-faint);fon
   .stats{grid-template-columns:repeat(2,1fr)}
   .tool-grid{grid-template-columns:1fr}
   .rail-steps{grid-template-columns:repeat(2,1fr);row-gap:22px}
+  .rail-steps.five{grid-template-columns:repeat(2,1fr)}
   .layer{grid-template-columns:36px minmax(0,1fr)}
   .layer-side{grid-column:2;text-align:left}
 }

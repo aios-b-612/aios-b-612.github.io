@@ -81,7 +81,7 @@
         <div class="reveal">
           <div class="eyebrow">Arquitetura · aios</div>
           <h1>Como o aios <span class="grad-text">se sustenta</span>.</h1>
-          <p class="lead">Quatro visões do mesmo sistema: as camadas do SO, os componentes do runtime, o caminho de uma requisição e a forma como os apps se conectam. Tudo local, do hardware ao token.</p>
+          <p class="lead">Cinco visões do mesmo sistema: as camadas do SO, os componentes do runtime, o caminho de uma requisição, a integração dos apps e o ciclo de vida de um modelo. Tudo local, do hardware ao token.</p>
           <div class="hero-cta">
             <a class="btn btn-primary" href="#camadas">Ver os diagramas <svg class="icon icon-sm"><use href="#icon-arrow-right"></use></svg></a>
             <a class="btn btn-brand" href="https://github.com/aios-b-612/aios/tree/main/edge-ai" target="_blank" rel="noopener">Código do runtime <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
@@ -408,6 +408,83 @@
         <div class="dg-legend">
           <span><i class="brand"></i>superfície do sistema</span>
           <span><i class="dash"></i>contrato entre app e runtime</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="ciclo">
+    <div class="wrap">
+      <div class="eyebrow">Diagrama 05 · ciclo de vida</div>
+      <h2>Como um modelo entra no dispositivo.</h2>
+      <p class="lead">O modelo não é baixado pelo sistema: ele chega como arquivo, é verificado, registrado no catálogo local e carregado em memória quando alguém pede inferência.</p>
+
+      <div class="diagram reveal">
+        <div class="dg-head">
+          <h3>Ciclo de vida de um modelo GGUF</h3>
+          <span class="dg-kind">do arquivo à inferência</span>
+        </div>
+        <p class="dg-sub">Tudo em disco local e sem permissão privilegiada: o diretório de modelos é gravável pelo usuário do dispositivo, e o registry é um arquivo TSV legível.</p>
+
+        <div class="rail">
+          <span class="rail-pkt" aria-hidden="true"></span>
+          <div class="rail-steps five">
+            <div>
+              <div class="step-node">01</div>
+              <div class="step-card">
+                <h4>Arquivo</h4>
+                <p>O modelo chega como GGUF quantizado, copiado de fora para dentro do dispositivo.</p>
+                <code>ai install model.gguf</code>
+              </div>
+            </div>
+            <div>
+              <div class="step-node">02</div>
+              <div class="step-card">
+                <h4>Cache local</h4>
+                <p>O cabeçalho GGUF é lido e o arquivo vai para o diretório de modelos da imagem.</p>
+                <code>/var/lib/ai/models</code>
+              </div>
+            </div>
+            <div>
+              <div class="step-node">03</div>
+              <div class="step-card">
+                <h4>Verificação</h4>
+                <p>O SHA-256 do arquivo é calculado e pode ser reconferido a qualquer momento.</p>
+                <code>ai verify model.gguf</code>
+              </div>
+            </div>
+            <div>
+              <div class="step-node">04</div>
+              <div class="step-card">
+                <h4>Registro</h4>
+                <p>O catálogo local ganha uma entrada com nome, caminho, checksum e tamanho.</p>
+                <code>registry.tsv · name · sha256 · size</code>
+              </div>
+            </div>
+            <div>
+              <div class="step-node">05</div>
+              <div class="step-card">
+                <h4>Carga e inferência</h4>
+                <p>O modelo é mapeado em memória e a geração começa a sair token a token.</p>
+                <code>load_ms · tps</code>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="lc-remove">
+          <div class="lc-remove-head">
+            <span class="icon-badge"><svg class="icon"><use href="#icon-terminal"></use></svg></span>
+            <div>
+              <b>ai remove &lt;nome&gt;</b>
+              <p>Desfaz o caminho: apaga o arquivo dentro do diretório de cache e remove a entrada do registry. A remoção fora do cache é recusada.</p>
+            </div>
+          </div>
+          <div class="hub-wire">
+            <span>catálogo local <b>registry.tsv</b></span>
+            <span>checagem de integridade <b>SHA-256</b></span>
+            <span>sem sudo <b>uso único do dispositivo</b></span>
+          </div>
         </div>
       </div>
     </div>

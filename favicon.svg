@@ -1,12 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
   <defs>
     <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#7a3db4"/>
-      <stop offset="50%" stop-color="#715acd"/>
-      <stop offset="100%" stop-color="#4c88dc"/>
+      <stop offset="0%" stop-color="#00d4aa"/>
+      <stop offset="100%" stop-color="#00a080"/>
     </linearGradient>
   </defs>
-  <rect width="24" height="24" rx="5" fill="#08080a"/>
-  <rect x="1" y="1" width="22" height="22" rx="5.5" fill="none" stroke="url(#g)" stroke-width="1.4"/>
-  <circle cx="12" cy="12" r="3.4" fill="url(#g)"/>
+  <rect width="32" height="32" rx="7" fill="#000000"/>
+  <rect x="1" y="1" width="30" height="30" rx="6.5" fill="none" stroke="url(#g)" stroke-width="1.4"/>
+  <text x="16" y="21" font-family="ui-monospace, monospace" font-size="13" font-weight="700"
+        text-anchor="middle" fill="url(#g)">AI</text>
 </svg>

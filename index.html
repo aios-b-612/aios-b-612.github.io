@@ -1,780 +1,618 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>AIOS - AI Operating System para Edge e Dispositivos</title>
-  <meta name="description" content="AIOS: Sistema operacional AI-first para edge computing, inferência de modelos GGUF e deployment em dispositivos Raspberry Pi, x86_64 e aarch64">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg: #0a0a0f;
-      --bg-subtle: #12121a;
-      --fg: #f0f0f5;
-      --muted: #737383;
-      --accent: #00d4aa;
-      --accent-dim: rgba(0, 212, 170, 0.15);
-      --card: #161a24;
-      --border: #2a2a3a;
-      --radius: 12px;
-    }
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>aios — o sistema operacional que dá IA ao seu dispositivo</title>
+<meta name="description" content="Um sistema operacional desktop e de borda, escrito em Rust, com inferência de tiny models 100% local. Sem nuvem, sem GPU, sem atrito.">
+<meta name="theme-color" content="#08080a">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="styles.css">
+<script src="site.js" defer></script>
 
-    * {
-      box-sizing: border-box;
-    }
-
-    html {
-      scroll-behavior: smooth;
-    }
-
-    body {
-      font-family: 'Inter', sans-serif;
-      background: var(--bg);
-      color: var(--fg);
-      line-height: 1.6;
-      margin: 0;
-      min-height: 100vh;
-    }
-
-    /* Background atmosphere */
-    .bg-atmosphere {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 0;
-      overflow: hidden;
-    }
-
-    .bg-atmosphere::before,
-    .bg-atmosphere::after {
-      content: '';
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(80px);
-      opacity: 0.6;
-    }
-
-    .bg-atmosphere::before {
-      width: 400px;
-      height: 400px;
-      background: var(--accent);
-      top: -100px;
-      left: -100px;
-      animation: float 20s ease-in-out infinite;
-    }
-
-    .bg-atmosphere::after {
-      width: 300px;
-      height: 300px;
-      background: #6366f1;
-      bottom: -50px;
-      right: -50px;
-      animation: float 25s ease-in-out infinite reverse;
-    }
-
-    @keyframes float {
-      0%, 100% { transform: translate(0, 0); }
-      33% { transform: translate(30px, -30px); }
-      66% { transform: translate(-20px, 20px); }
-    }
-
-    /* Gradient orb for subtle movement */
-    .orb {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(60px);
-      opacity: 0.3;
-      animation: orbFloat 18s ease-in-out infinite;
-    }
-
-    .orb-1 {
-      width: 250px;
-      height: 250px;
-      background: #00d4aa;
-      top: 20%;
-      left: 10%;
-      animation-delay: 0s;
-    }
-
-    .orb-2 {
-      width: 200px;
-      height: 200px;
-      background: #6366f1;
-      bottom: 20%;
-      right: 10%;
-      animation-delay: -6s;
-    }
-
-    .orb-3 {
-      width: 150px;
-      height: 150px;
-      background: #f472b6;
-      top: 60%;
-      left: 70%;
-      animation-delay: -12s;
-    }
-
-    @keyframes orbFloat {
-      0%, 100% { transform: translate(0, 0) scale(1); }
-      50% { transform: translate(20px, -20px) scale(1.05); }
-    }
-
-    /* Container */
-    .container {
-      position: relative;
-      z-index: 1;
-      max-width: 860px;
-      margin: 0 auto;
-      padding: 24px;
-    }
-
-    /* Focus visible */
-    a:focus-visible, button:focus-visible {
-      outline: 2px solid var(--accent);
-      outline-offset: 2px;
-    }
-
-    /* Header */
-    header {
-      padding: 20px 0;
-      margin-bottom: 40px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    header .container {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 16px;
-    }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      text-decoration: none;
-      color: var(--fg);
-      font-weight: 600;
-      font-size: 1.5rem;
-    }
-
-    .logo svg {
-      width: 32px;
-      height: 32px;
-    }
-
-    .nav {
-      display: flex;
-      gap: 16px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-
-    .nav a {
-      color: var(--muted);
-      text-decoration: none;
-      font-size: 0.875rem;
-      transition: color 0.2s ease;
-    }
-
-    .nav a:hover {
-      color: var(--fg);
-    }
-
-    .cta-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: var(--accent);
-      color: var(--bg);
-      border: none;
-      padding: 10px 20px;
-      border-radius: var(--radius);
-      font-size: 0.875rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background 0.2s ease, transform 0.1s ease;
-      white-space: nowrap;
-    }
-
-    .cta-btn:hover {
-      background: #00f0bb;
-    }
-
-    .cta-btn:focus-visible {
-      outline: 2px solid var(--bg);
-      outline-offset: 2px;
-    }
-
-    /* Hero */
-    .hero {
-      padding: 80px 0;
-      text-align: center;
-    }
-
-    .hero h1 {
-      font-size: clamp(2.5rem, 6vw, 4.5rem);
-      font-weight: 600;
-      line-height: 1.1;
-      margin-bottom: 24px;
-      letter-spacing: -0.02em;
-    }
-
-    .hero p {
-      font-size: 1.25rem;
-      color: var(--muted);
-      max-width: 620px;
-      margin: 0 auto 32px;
-      line-height: 1.5;
-    }
-
-    .hero .hero-tags {
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-top: 24px;
-    }
-
-    .tag {
-      font-size: 0.75rem;
-      padding: 6px 12px;
-      background: var(--accent-dim);
-      color: var(--accent);
-      border-radius: 20px;
-      font-weight: 500;
-      transition: background 0.2s ease;
-    }
-
-    .tag:hover {
-      background: var(--accent);
-      color: var(--bg);
-    }
-
-    /* Stats */
-    .stats {
-      padding: 60px 0;
-      background: var(--bg-subtle);
-      border-radius: var(--radius);
-      margin: 40px 0;
-    }
-
-    .stats .container {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 24px;
-    }
-
-    .stat-item {
-      text-align: center;
-    }
-
-    .stat-value {
-      font-size: 2.25rem;
-      font-weight: 600;
-      color: var(--accent);
-      margin-bottom: 4px;
-    }
-
-    .stat-label {
-      font-size: 0.875rem;
-      color: var(--muted);
-    }
-
-    /* Sections */
-    section {
-      padding: 60px 0;
-    }
-
-    section:nth-child(even) {
-      background: var(--bg-subtle);
-    }
-
-    .section-title {
-      font-size: 1.75rem;
-      font-weight: 600;
-      margin-bottom: 24px;
-      text-align: center;
-    }
-
-    .section-subtitle {
-      text-align: center;
-      color: var(--muted);
-      max-width: 540px;
-      margin: 0 auto 48px;
-      font-size: 1.125rem;
-    }
-
-    /* Features Grid */
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 24px;
-    }
-
-    .feature-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 32px 24px;
-      transition: transform 0.2s ease, border-color 0.2s ease;
-    }
-
-    .feature-card:hover {
-      transform: translateY(-4px);
-      border-color: var(--accent);
-    }
-
-    .feature-icon {
-      width: 48px;
-      height: 48px;
-      margin-bottom: 20px;
-    }
-
-    .feature-card h3 {
-      font-size: 1.25rem;
-      margin-bottom: 8px;
-    }
-
-    .feature-card p {
-      color: var(--muted);
-      font-size: 0.9375rem;
-      line-height: 1.5;
-    }
-
-    /* Code blocks */
-    .code-block {
-      background: var(--bg-subtle);
-      border-radius: var(--radius);
-      padding: 24px;
-      overflow-x: auto;
-      margin: 24px 0;
-    }
-
-    .code-block pre {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.875rem;
-      line-height: 1.5;
-      color: var(--fg);
-      margin: 0;
-    }
-
-    .code-block code {
-      color: var(--accent);
-    }
-
-    /* CTA */
-    .cta {
-      text-align: center;
-      padding: 80px 0;
-    }
-
-    .cta h2 {
-      font-size: 2rem;
-      margin-bottom: 20px;
-    }
-
-    .cta p {
-      color: var(--muted);
-      margin-bottom: 32px;
-    }
-
-    .cta .btn-primary {
-      display: inline-block;
-      background: var(--accent);
-      color: var(--bg);
-      padding: 14px 32px;
-      border-radius: var(--radius);
-      text-decoration: none;
-      font-weight: 500;
-      font-size: 1rem;
-      transition: background 0.2s ease;
-    }
-
-    .cta .btn-primary:hover {
-      background: #00f0bb;
-    }
-
-    /* Footer */
-    footer {
-      padding: 40px 0;
-      border-top: 1px solid var(--border);
-      color: var(--muted);
-      font-size: 0.875rem;
-    }
-
-    .footer .container {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 24px;
-    }
-
-    .footer-links a {
-      color: var(--muted);
-      text-decoration: none;
-      margin-left: 16px;
-      transition: color 0.2s ease;
-    }
-
-    .footer-links a:hover {
-      color: var(--accent);
-    }
-
-    .footer-legal a {
-      color: var(--muted);
-      text-decoration: none;
-      margin-left: 24px;
-      font-size: 0.75rem;
-    }
-
-    /* Mobile menu btn */
-    .menu-btn {
-      display: none;
-      background: none;
-      border: none;
-      color: var(--fg);
-      font-size: 1.5rem;
-      cursor: pointer;
-    }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-      .nav {
-        display: none;
-      }
-
-      .menu-btn {
-        display: block;
-      }
-
-      .nav.active {
-        display: flex;
-        position: absolute;
-        top: 100%;
-        left: 0;
-        right: 0;
-        background: var(--card);
-        flex-direction: column;
-        padding: 20px;
-        gap: 16px;
-      }
-    }
-  </style>
+<style>
+  .reveal{animation: card-in .6s ease forwards; animation-delay: .1s}
+  .step-node{animation: pulse-slow 4s ease-in-out infinite}
+</style>
 </head>
 <body>
-  <div class="bg-atmosphere">
-    <div class="orb orb-1"></div>
-    <div class="orb orb-2"></div>
-    <div class="orb orb-3"></div>
+
+<svg class="svg-sprite" aria-hidden="true" focusable="false">
+  <symbol id="icon-arrow-up-right" viewBox="0 0 24 24"><path d="M7 17 17 7M8 7h9v9"/></symbol>
+  <symbol id="icon-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="icon-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="icon-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+  <symbol id="icon-terminal" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="m7 9 3 3-3 3M13 15h4"/></symbol>
+  <symbol id="icon-chip" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 9h6v6H9zM9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/></symbol>
+  <symbol id="icon-cpu" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/></symbol>
+  <symbol id="icon-database" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="7" ry="3"/><path d="M5 5v7c0 1.66 3.13 3 7 3s7-1.34 7-3V5M5 12v7c0 1.66 3.13 3 7 3s7-1.34 7-3v-7"/></symbol>
+  <symbol id="icon-layers" viewBox="0 0 24 24"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 12 9 5 9-5M3 16l9 5 9-5"/></symbol>
+  <symbol id="icon-box" viewBox="0 0 24 24"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Z"/><path d="m4.5 7.8 7.5 4.4 7.5-4.4M12 12.2V21"/></symbol>
+  <symbol id="icon-network" viewBox="0 0 24 24"><circle cx="5" cy="12" r="2.5"/><circle cx="19" cy="5" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="m7.2 10.8 9.6-4.6M7.2 13.2l9.6 4.6"/></symbol>
+  <symbol id="icon-gateway" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="8" rx="2"/><path d="M7 12h.01M11 12h.01M15 12h.01M19 12h.01M7 8V5M17 8V5M7 16v3M17 16v3"/></symbol>
+  <symbol id="icon-pulse" viewBox="0 0 24 24"><path d="M3 12h4l2-6 4 12 2-6h6"/></symbol>
+  <symbol id="icon-spark" viewBox="0 0 24 24"><path d="m12 2 1.6 6.4L20 10l-6.4 1.6L12 18l-1.6-6.4L4 10l6.4-1.6L12 2Z"/></symbol>
+  <symbol id="icon-shield" viewBox="0 0 24 24"><path d="M12 3 20 6v5c0 5-3.4 8.4-8 10-4.6-1.6-8-5-8-10V6l8-3Z"/><path d="m8.5 12 2.2 2.2 4.8-4.8"/></symbol>
+  <symbol id="icon-code" viewBox="0 0 24 24"><path d="m8 9-4 3 4 3M16 9l4 3-4 3M14 5l-4 14"/></symbol>
+  <symbol id="icon-memory" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M9 10h.01M15 10h.01M9.6 14.4c1.5 1.2 3.3 1.2 4.8 0"/></symbol>
+  <symbol id="icon-lock" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></symbol>
+  <symbol id="icon-gauge" viewBox="0 0 24 24"><path d="M4 18a8 8 0 1 1 16 0M12 18l4-6"/></symbol>
+  <symbol id="icon-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.8 5.8 3.8 9S14.5 18.3 12 21c-2.5-2.7-3.8-5.8-3.8-9S9.5 5.7 12 3Z"/></symbol>
+  <symbol id="icon-doc" viewBox="0 0 24 24"><path d="M9 3h6l4 4v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h2Z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></symbol>
+  <symbol id="icon-github" viewBox="0 0 24 24"><path d="M15 22v-3.9c.04-1-.36-1.7-.82-2.1 2.7-.3 5.53-1.33 5.53-6a4.66 4.66 0 0 0-1.24-3.25 4.34 4.34 0 0 0-.1-3.22s-1.02-.33-3.35 1.27a11.62 11.62 0 0 0-6.1 0C6.5 2.21 5.48 2.54 5.48 2.54a4.34 4.34 0 0 0-.1 3.22A4.66 4.66 0 0 0 4.14 9c0 4.66 2.83 5.69 5.53 6-.33.25-.62.71-.72 1.38-.64.28-2.26.83-3.26-1a1.1 1.1 0 0 0-1.2-.57 1.1 1.1 0 0 0-.63 1.77c1.13 1.93 2.58 2.1 4.14 2.1V22"/></symbol>
+</svg>
+
+<header>
+  <div class="wrap nav">
+    <a class="logo" href="index.html" aria-label="aios, início">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <defs>
+          <linearGradient id="logo-grad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#7a3db4"/>
+            <stop offset="50%" stop-color="#715acd"/>
+            <stop offset="100%" stop-color="#4c88dc"/>
+          </linearGradient>
+        </defs>
+        <rect x="2" y="2" width="20" height="20" rx="5" stroke="url(#logo-grad)" stroke-width="1.8"/>
+        <circle cx="12" cy="12" r="3.4" fill="url(#logo-grad)"/>
+      </svg>
+      <b>aios</b>
+    </a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav" aria-label="Abrir menu">
+      <svg class="icon"><use href="#icon-menu"></use></svg>
+      <svg class="icon icon-close"><use href="#icon-close"></use></svg>
+    </button>
+    <nav class="navlinks" id="nav" aria-label="Navegação principal">
+      <a href="index.html#how">Como funciona</a>
+      <a href="index.html#os">O SO</a>
+      <a href="index.html#slm">Tiny SLM</a>
+      <a href="arquitetura.html">Arquitetura</a>
+      <a href="apps.html">Apps</a>
+    </nav>
+    <div class="navcta">
+      <a class="btn btn-ghost" href="https://github.com/aios-b-612/aios" target="_blank" rel="noopener">GitHub</a>
+      <a class="btn btn-brand" href="apps.html">Ver os apps <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
+    </div>
   </div>
+</header>
 
-  <header>
-    <div class="container">
-      <a href="#" class="logo">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-        </svg>
-        AIOS
-      </a>
-      <button class="menu-btn" aria-label="Abrir menu">☰</button>
-      <nav class="nav" aria-label="Navegação principal">
-        <a href="#how-it-works">Como funciona</a>
-        <a href="#features">Funcionalidades</a>
-        <a href="#apps">Apps</a>
-        <a href="#docs">Documentação</a>
-      </nav>
-      <a href="#get-started" class="cta-btn">Começar agora</a>
-    </div>
-  </header>
+<main id="top">
 
-  <main>
-    <section class="hero">
-      <div class="container">
-        <h1>O Sistema Operacional AI-First para Edge</h1>
-        <p>Execute inferência de modelos GGUF, gerencie dispositivos e despliegue aplicações AI em qualquer hardware — do Raspberry Pi ao data center.</p>
-
-        <div class="hero-tags">
-          <span class="tag">Edge AI</span>
-          <span class="tag">GPU/NPU</span>
-          <span class="tag">GGUF</span>
-          <span class="tag">Redox</span>
+  <section class="hero">
+    <div class="hero-grid"></div>
+    <div class="hero-scan"></div>
+    <div class="wrap">
+      <div class="hero-inner">
+        <div class="reveal" style="animation: card-in .6s ease forwards; animation-delay: .1s">
+          <div class="eyebrow">Edge AI OS · Rust · Redox</div>
+          <h1>Dê a cada dispositivo a sua própria <span class="grad-text">IA</span>.</h1>
+          <p class="lead">Um sistema operacional desktop e de borda, escrito em Rust, com inferência de tiny models 100% local. Sem nuvem. Sem GPU. Sem atrito.</p>
+          <div class="hero-cta">
+            <a class="btn btn-primary" href="https://github.com/aios-b-612/aios" target="_blank" rel="noopener">Ver no GitHub <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
+            <a class="btn btn-brand" href="apps.html">Apps do ecossistema <svg class="icon icon-sm"><use href="#icon-arrow-right"></use></svg></a>
+          </div>
+          <div class="hero-signals">
+            <span><i class="dot-live"></i>LOCAL-FIRST</span>
+            <span><i class="dot-live"></i>RUST NATIVE</span>
+            <span><i class="dot-live"></i>EDGE READY</span>
+          </div>
         </div>
-      </div>
-    </section>
-
-    <section class="stats">
-      <div class="container">
-        <div class="stats-grid">
-          <div class="stat-item">
-            <div class="stat-value" data-target="12">0</div>
-            <div class="stat-label">Dispositivos conectados</div>
+        <div class="core-panel reveal" aria-label="Visualização do runtime local do aios">
+          <div class="panel-top"><span>aios / core</span><span class="bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></div>
+          <div class="core-stage">
+            <div class="stage-grid"></div>
+            <div class="core-orbit"></div>
+            <div class="core-orbit two"></div>
+            <div class="core-orbit three"></div>
+            <div class="core-node"><span>AI</span></div>
+            <span class="core-tag t1"><i></i>MODEL</span>
+            <span class="core-tag t2"><i></i>TASKS</span>
+            <span class="core-tag t3"><i></i>API</span>
+            <span class="core-tag t4"><i></i>PANEL</span>
           </div>
-          <div class="stat-item">
-            <div class="stat-value" data-target="15">0</div>
-            <div class="stat-label">Países</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-value" data-target="4.7">0</div>
-            <div class="stat-label">TB processados</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-value" data-target="99.9">0</div>
-            <div class="stat-label">Uptime</div>
+          <div class="panel-foot">
+            <div><small>INPUT</small><b>LOCAL</b></div>
+            <div><small>ROUTING</small><b>ADAPTIVE</b></div>
+            <div><small>OUTPUT</small><b>EDGE</b></div>
           </div>
         </div>
       </div>
-    </section>
-
-    <section id="how-it-works">
-      <div class="container">
-        <h2 class="section-title">Como funciona</h2>
-        <p class="section-subtitle">Do modelo ao dispositivo em alguns passos</p>
-
-        <div class="features-grid">
-          <article class="feature-card">
-            <div class="feature-icon" style="filter: invert(1);">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12 2v4l10 8-10 8v-4"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M2 12l10-8 10 8"/>
-              </svg>
-            </div>
-            <h3>Carregue modelos GGUF</h3>
-            <p>Suporte nativo para milhares de modelos GGUF — from 7B a 70B parâmetros. Otimizado para inferência edge.</p>
-          </article>
-
-          <article class="feature-card">
-            <div class="feature-icon" style="filter: invert(1);">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            </div>
-            <h3>Inferência local</h3>
-            <p>Execute IA diretamente no dispositivo sem dependência de nuvem. Latência sub-10ms em hardware compatível.</p>
-          </article>
-
-          <article class="feature-card">
-            <div class="feature-icon" style="filter: invert(1);">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10-5 10 5"/></svg>
-            </div>
-            <h3>Gerencie dispositivos</h3>
-            <p>Painel unificado para monitoramento, updates e deploy em massa de dispositivos edge em qualquer rede.</p>
-          </article>
-
-          <article class="feature-card">
-            <div class="feature-icon" style="filter: invert(1);">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><line x1="7" y1="7" x2="7" y2="1"/><line x1="15" y1="7" x2="15" y2="1"/><path d="M10 14l4-4 4 4M6 10l4 4 4-4"/></svg>
-            </div>
-            <h3>Segurança isolada</h3>
-            <p>Esquema de contêiner Redox com permissões granulares. Isolamento por default — seguro por design.</p>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section id="features">
-      <div class="container">
-        <h2 class="section-title">Funcionalidades</h2>
-        <p class="section-subtile">Uma plataforma completa para deployment de IA em edge</p>
-
-        <div class="features-grid">
-          <article class="feature-card">
-            <div class="feature-icon" style="filter: invert(1);">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12 22s8-4 8-14L12 2 4 22h8z"/><path d="M2 4l6 7h2"/><path d="M6 13l-3 3L23 3"/></svg>
-            </div>
-            <h3>Modelos GGUF</h3>
-            <p>Biblioteca completa para carregamento, quantização e inferência de modelos GGUF em tempo real.</p>
-          </article>
-
-          <article class="feature-card">
-            <div class="feature-icon" style="filter: invert(1);">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10-5 10 5"/></svg>
-            </div>
-            <h3>API REST</h3>
-            <p>API HTTP completa para controle remoto, status e inferência — projetada para dispositivos edge com largura de banda limitada.</p>
-          </article>
-
-          <article class="feature-card">
-            <div class="feature-icon" style="filter: invert(1);">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"/><path d="M8 14l4-4l-4-4m12 4l-4 4L16 12"/></svg>
-            </div>
-            <h3>Painel Web</h3>
-            <p>Interface de controle em tempo real com métricas, logs e gerenciamento de modelos — zero dependências externas.</p>
-          </article>
-
-          <article class="feature-card">
-            <div class="feature-icon" style="filter: invert(1);">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12 2L2 12l10 6"/><path d="M2 12l10 6"/><path d="M2 18l10-6"/></svg>
-            </div>
-            <h3>Multi-arch</h3>
-            <p>Suporte nativo para x86_64, aarch64, ARMv7 e RISC-V. Builds automáticas para Raspberry Pi e servidores.</p>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section id="apps">
-      <div class="container">
-        <h2 class="section-title">Apps & Integrações</h2>
-        <p class="section-subtitle">Ecossistema de aplicações construídas sobre o AIOS</p>
-
-        <div class="features-grid">
-          <article class="feature-card">
-            <div class="feature-icon" style="filter: invert(1);">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12 22s8-4 8-14L12 2 4 22h8z"/><path d="M2 4l6 7h2"/><path d="M6 13l-3 3L23 3"/></svg>
-            </div>
-            <h3>Chat Local</h3>
-            <p>Aplicação de chat privado com modelos locais. Totalmente offline, sem dados saírem do dispositivo.</p>
-          </article>
-
-          <article class="feature-card">
-            <div class="feature-icon" style="filter: invert(1);">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"/><path d="M8 14l4-4l-4-4m12 4l-4 4L16 12"/></svg>
-            </div>
-            <h3>Visão Computacional</h3>
-            <p>Inferência de modelos de detecção e segmentação em tempo real para câmeras edge.</p>
-          </article>
-
-          <article class="feature-card">
-            <div class="feature-icon" style="filter: invert(1);">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            </div>
-            <h3>Análise de Dados</h3>
-            <p>Processamento de séries temporais e estatística descritiva com modelos de linguagem integrados.</p>
-          </article>
-
-          <article class="feature-card">
-            <div class="feature-icon" style="filter: invert(1);">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12 22s8-4 8-14L12 2 4 22h8z"/><path d="M2 4l6 7h2"/><path d="M6 13l-3 3L23 3"/></svg>
-            </div>
-            <h3>Automação</h3>
-            <p>Fluxos de trabalho automatizados com gatilhos baseados em sensores e eventos de sistema.</p>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section id="get-started" class="cta">
-      <div class="container">
-        <h2>Comece hoje</h2>
-        <p>Baixe o Developer OS, rode modelos em minutos e junte-se à comunidade edge AI.</p>
-        <a href="#" class="btn-primary">Baixar Developer OS</a>
-      </div>
-    </section>
-  </main>
-
-  <footer>
-    <div class="container">
-      <div class="footer-links">
-        <a href="#how-it-works">Como funciona</a>
-        <a href="#features">Funcionalidades</a>
-        <a href="#apps">Apps</a>
-        <a href="#docs">Documentação</a>
-      </div>
-      <div class="footer-legal">
-        <a href="#">Privacy Policy</a>
-        <a href="#">Terms of Service</a>
+      <div class="stats">
+        <div class="stat reveal"><b>100%</b><span>Local</span></div>
+        <div class="stat reveal"><b>~7 t/s</b><span>TinyLlama · CPU</span></div>
+        <div class="stat reveal"><b>8 MB</b><span>Binário edge-ai</span></div>
+        <div class="stat reveal"><b>GGUF</b><span>Models Q4</span></div>
       </div>
     </div>
-  </footer>
+  </section>
 
-  <script>
-    // Counter animation for stats
-    document.addEventListener('DOMContentLoaded', function() {
-      const statValues = document.querySelectorAll('.stat-value');
+  <section id="problem">
+    <div class="wrap">
+      <div class="eyebrow">O problema</div>
+      <h2>A nuvem é o gargalo.</h2>
+      <p class="lead">Depender de servidores para cada prompt custa caro, atrasa tudo e leva seus dados embora. Para um dispositivo de borda, isso não escala.</p>
+      <div class="steps">
+        <div class="step reveal">
+          <div class="n">01</div>
+          <div>
+            <h3>Dependência</h3>
+            <p>Cada inferência paga latência, custo e vendor lock. Um sistema operacional não pode depender de alguém estar online.</p>
+          </div>
+        </div>
+        <div class="step reveal">
+          <div class="n">02</div>
+          <div>
+            <h3>Latência</h3>
+            <p>Ida e volta na rede a cada prompt. Para automação e agentes, isso é o gargalo real — não o modelo.</p>
+          </div>
+        </div>
+        <div class="step reveal">
+          <div class="n">03</div>
+          <div>
+            <h3>Seus dados saem</h3>
+            <p>Prompt, resposta e contexto vão para fora. Privacidade e conformidade viram o problema, não a exceção.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            const target = entry.target;
-            const end = parseInt(target.dataset.target);
-            let start = 0;
-            const duration = 1500;
-            const startTime = performance.now();
+  <section id="how">
+    <div class="wrap">
+      <div class="eyebrow">A solução</div>
+      <h2>Um SO, redefinido para IA.</h2>
+      <p class="lead">O aios roda a inferência dentro do próprio dispositivo. O modelo, o runtime e a interface vivem juntos — local, rápido e sob seu controle.</p>
+      <div class="feature reveal">
+        <div class="metric">0<small>Na nuvem</small></div>
+        <div>
+          <h3>Local-first de verdade</h3>
+          <p>O daemon <code>edge-ai</code> sobe junto com o sistema. Health, inferência e métricas respondem em milissegundos, sem sair da máquina.</p>
+        </div>
+      </div>
+      <div class="feature reveal">
+        <div class="metric">Rust<small>Runtime enxuto</small></div>
+        <div>
+          <h3>Leve, rápido, seguro</h3>
+          <p>Userland enxuto, sem bloated runtime. O binário do edge-ai tem ~8 MB e roda em CPU pura — sem GPU, sem CUDA, sem nuvem.</p>
+        </div>
+      </div>
+      <div class="feature reveal">
+        <div class="metric">Q4<small>GGUF</small></div>
+        <div>
+          <h3>Tiny models, progresso completo</h3>
+          <p>Modelos GGUF quantizados (TinyLlama, família tiny) rodam bem em hardware modesto. O registry gerencia install/remove e versões offline.</p>
+        </div>
+      </div>
+      <div class="feature reveal">
+        <div class="metric">1<small>Daemon</small></div>
+        <div>
+          <h3>Uma interface para tudo</h3>
+          <p>API HTTP local, CLI <code>edge</code> e painel web — status, inferência, benchmark, logs e métricas num lugar só.</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
-            function updateCounter(currentTime) {
-              const elapsed = currentTime - startTime;
-              const progress = Math.min(elapsed / duration, 1);
-              const easeOut = 1 - Math.pow(1 - progress, 3);
-              const current = Math.round(start + (end - start) * easeOut);
+  <section id="os">
+    <div class="wrap">
+      <div class="eyebrow">O sistema operacional</div>
+      <h2>Um desktop que trabalha com IA.</h2>
+      <p class="lead">Não é uma distro com um app de inferência. É um sistema operacional onde o runtime de IA é parte da primeira classe — compilado, embarcado e acessível desde o boot.</p>
+      <div class="grid2">
+        <div class="panel reveal">
+          <div class="card-head"><span class="icon-badge"><svg class="icon"><use href="#icon-terminal"></use></svg></span><h3>Developer OS</h3></div>
+          <p>Perfil <code>ai-developer</code>: toolchain Rust/C/Python embarcada, terminal, editor e o painel edge — tudo local.</p>
+          <div class="chips">
+            <span class="chip">Rust</span><span class="chip">C</span><span class="chip">Python</span><span class="chip">Ion shell</span>
+          </div>
+        </div>
+        <div class="panel reveal">
+          <div class="card-head"><span class="icon-badge"><svg class="icon"><use href="#icon-chip"></use></svg></span><h3>Edge OS</h3></div>
+          <p>Perfil <code>ai-edge</code>: imagem mínima que boota direto para serviço de IA — daemon ativo, sem GUI, sem ruído.</p>
+          <div class="chips">
+            <span class="chip">headless</span><span class="chip">~8 MB daemon</span><span class="chip">offline</span>
+          </div>
+        </div>
+      </div>
+      <p class="base-note reveal">Base de sistema: <a href="https://redox-os.org" target="_blank" rel="noopener">Redox OS</a> — o aios escreve o runtime de IA, os binários e a experiência em cima dessa base.</p>
+    </div>
+  </section>
 
-              if (target.dataset.format === 'percent') {
-                target.textContent = current + '%';
-              } else if (target.dataset.format === 'bytes') {
-                target.textContent = formatBytes(current);
-              } else {
-                target.textContent = current;
-              }
+  <section id="slm">
+    <div class="wrap">
+      <div class="eyebrow">Família de tiny SLM</div>
+      <h2>Pequenos o bastante para qualquer lugar.</h2>
+      <p class="lead">Modelos GGUF quantizados em Q4: bem menos memória, inferência aceitável e zero chamada de rede. A família tiny é a primeira camada — e roda na Raspberry Pi.</p>
+      <div class="cards">
+        <article class="card reveal">
+          <div class="card-head">
+            <span class="icon-badge"><svg class="icon"><use href="#icon-spark"></use></svg></span>
+            <div><span class="tag">Principal · TinyLlama</span><h3>TinyLlama 1.1B</h3></div>
+          </div>
+          <p>O caballo de batalha: ~668 MB em Q4_K_M, ~7 t/s no host e ~1,7 t/s dentro do guest. Cabe na Raspberry Pi e no desktop.</p>
+          <a class="card-link" href="https://huggingface.co/TinyLlama/TinyLlama-1.1B-Chat-v1.0" target="_blank" rel="noopener">Projeto oficial <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
+          <a class="card-link" href="https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF" target="_blank" rel="noopener">GGUF Q4_K_M <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
+        </article>
+        <article class="card reveal">
+          <div class="card-head">
+            <span class="icon-badge"><svg class="icon"><use href="#icon-pulse"></use></svg></span>
+            <div><span class="tag">Micro · Hello</span><h3>Hello 1B</h3></div>
+          </div>
+          <p>Modelo mínimo para smoke, benchmark e testes de pipeline. Onde a latência vira o gargalo, ele prova o caminho.</p>
+          <a class="card-link" href="https://github.com/aios-b-612/aios" target="_blank" rel="noopener">Projeto aios <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
+        </article>
+      </div>
+    </div>
+  </section>
 
-              if (progress < 1) {
-                requestAnimationFrame(updateCounter);
-              }
-            }
+  <section id="pi">
+    <div class="wrap">
+      <div class="eyebrow">Raspberry Pi</div>
+      <h2>Do seu desk ao seu edge.</h2>
+      <p class="lead">O mesmo runtime, do desktop à Raspberry Pi. aarch64 é alvo de deploy: o daemon, o CLI e os modelos tiny rodam em hardware de borda real.</p>
+      <div class="grid2">
+        <div class="panel reveal">
+          <div class="big">aarch64</div>
+          <p>Perfil <code>ai-edge</code> construído para Raspberry Pi. Inferência em CPU, sem GPU — o tiny SLM roda onde você quiser.</p>
+        </div>
+        <div class="panel reveal">
+          <div class="big">Portátil</div>
+          <p>Cross-build para <code>aarch64</code>. O mesmo código, do seu notebook ao Pi na borda da rede.</p>
+        </div>
+      </div>
+    </div>
+  </section></section>
 
-            requestAnimationFrame(updateCounter);
+  <section id="system">
+    <div class="wrap">
+      <div class="eyebrow">Sistema · aios</div>
+      <h2>O que já vem pronto no sistema.</h2>
+      <p class="lead">Cada peça do aios é um crate ou um binário próprio, em Rust, compilado para o desktop e para o Pi. Nada de dependência de nuvem.</p>
 
-            // Stop observing after animation
-            observer.unobserve(target);
-          }
-        });
-      }, { threshold: 0.5 });
+      <div class="group">
+        <div class="group-head"><b>Runtime e CLIs</b><i></i><em>executáveis do sistema</em></div>
+        <div class="tool-grid">
+          <article class="tool reveal">
+            <div class="tool-top">
+              <span class="icon-badge"><svg class="icon"><use href="#icon-pulse"></use></svg></span>
+              <span class="origin origin-sys">Sistema</span>
+            </div>
+            <h3>edge-ai</h3>
+            <p>Daemon HTTP local: health, models, inferência, benchmark, logs, métricas e painel web num binário só. Sobe primeiro e pré-carrega o modelo em background.</p>
+            <span class="cmd">~8 MB · bin/edge-ai</span>
+            <a class="card-link" href="https://github.com/aios-b-612/aios/tree/main/edge-ai" target="_blank" rel="noopener">crate edge-ai <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
+          </article>
+          <article class="tool reveal">
+            <div class="tool-top">
+              <span class="icon-badge"><svg class="icon"><use href="#icon-terminal"></use></svg></span>
+              <span class="origin origin-sys">Sistema</span>
+            </div>
+            <h3>edge</h3>
+            <p>CLI do daemon: status, models, run, benchmark, logs, monitor e serve. É o painel de linha de comando do dispositivo.</p>
+            <span class="cmd">edge status</span>
+            <a class="card-link" href="https://github.com/aios-b-612/aios/tree/main/edge-ai" target="_blank" rel="noopener">bin/edge <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
+          </article>
+          <article class="tool reveal">
+            <div class="tool-top">
+              <span class="icon-badge"><svg class="icon"><use href="#icon-spark"></use></svg></span>
+              <span class="origin origin-sys">Sistema</span>
+            </div>
+            <h3>ai</h3>
+            <p>CLI de modelos e tarefas: list, info, inspect, verify, install, remove, doctor, run e <code>ai task</code> (summarize, classify, intent, translate, qa) com roteamento por config.</p>
+            <span class="cmd">ai task classify</span>
+            <a class="card-link" href="https://github.com/aios-b-612/aios/tree/main/cli/ai" target="_blank" rel="noopener">crate aios-cli <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
+          </article>
+        </div>
+      </div>
 
-      statValues.forEach(el => observer.observe(el));
-    });
+      <div class="group">
+        <div class="group-head"><b>Bibliotecas do núcleo</b><i></i><em>crates compartilhados</em></div>
+        <div class="tool-grid">
+          <article class="tool reveal">
+            <div class="tool-top">
+              <span class="icon-badge"><svg class="icon"><use href="#icon-box"></use></svg></span>
+              <span class="origin origin-sys">Sistema</span>
+            </div>
+            <h3>ai-core</h3>
+            <p>Núcleo compartilhado: parser GGUF com streaming, SHA-256, cache global, registry TSV e metadados de modelo. O modelo é dado local — a gestão também.</p>
+            <span class="cmd">GGUF · SHA-256 · registry</span>
+            <a class="card-link" href="https://github.com/aios-b-612/aios/tree/main/ai-core" target="_blank" rel="noopener">crate aios-core <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
+          </article>
+          <article class="tool reveal">
+            <div class="tool-top">
+              <span class="icon-badge"><svg class="icon"><use href="#icon-cpu"></use></svg></span>
+              <span class="origin origin-sys">Sistema</span>
+            </div>
+            <h3>ai-inference</h3>
+            <p>Backends de inferência em Rust puro sobre Candle CPU, com streaming de tokens. A base sobre a qual o daemon, o CLI e o SDK geram texto.</p>
+            <span class="cmd">Candle CPU · streaming</span>
+            <a class="card-link" href="https://github.com/aios-b-612/aios/tree/main/ai-inference" target="_blank" rel="noopener">crate aios-inference <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
+          </article>
+          <article class="tool reveal">
+            <div class="tool-top">
+              <span class="icon-badge"><svg class="icon"><use href="#icon-layers"></use></svg></span>
+              <span class="origin origin-sys">Sistema</span>
+            </div>
+            <h3>edge-sdk</h3>
+            <p>SDK para apps e agentes de borda: carrega um modelo do registry e gera tokens com métricas de TPS e tempo de load, com a mesma API do core.</p>
+            <span class="cmd">load · generate_with_metrics</span>
+            <a class="card-link" href="https://github.com/aios-b-612/aios/tree/main/edge-sdk" target="_blank" rel="noopener">crate aios-sdk <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
 
-    // Format bytes helper
-    function formatBytes(bytes) {
-      if (bytes === 0) return '0 B';
-      const k = 1024;
-      const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
-      const i = Math.floor(Math.log(bytes) / Math.log(k));
-      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-    }
+  <section id="third">
+    <div class="wrap">
+      <div class="eyebrow">Apps de terceiros</div>
+      <h2>Ferramentas de terceiros que o aios adota.</h2>
+      <p class="lead">Não fazem parte do sistema e não são nosso código. São projetos abertos de terceiros que já rodam no mesmo runtime e que o aios usa como componente.</p>
+      <div class="group third">
+        <div class="group-head"><b>Terceiros</b><i></i><em>projetos externos adotados</em></div>
+        <div class="tool-grid">
+          <article class="tool reveal">
+            <div class="tool-top">
+              <span class="icon-badge"><svg class="icon"><use href="#icon-network"></use></svg></span>
+              <span class="origin origin-3p">Terceiros</span>
+            </div>
+            <h3>ai-memory</h3>
+            <p>Memória de longo prazo para os agentes do sistema, em binário único Rust, sem chave de API no caminho padrão.</p>
+            <span class="cmd">MIT · akitaonrails</span>
+            <a class="card-link" href="https://github.com/akitaonrails/ai-memory" target="_blank" rel="noopener">akitaonrails/ai-memory <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
+          </article>
+          <article class="tool reveal">
+            <div class="tool-top">
+              <span class="icon-badge"><svg class="icon"><use href="#icon-lock"></use></svg></span>
+              <span class="origin origin-3p">Terceiros</span>
+            </div>
+            <h3>ai-jail</h3>
+            <p>Sandbox de sistema operacional para rodar agentes de código com home, chaves, rede e clipboard isolados até você liberar.</p>
+            <span class="cmd">GPL-3.0 · akitaonrails</span>
+            <a class="card-link" href="https://github.com/akitaonrails/ai-jail" target="_blank" rel="noopener">akitaonrails/ai-jail <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
+          </article>
+          <article class="tool reveal">
+            <div class="tool-top">
+              <span class="icon-badge"><svg class="icon"><use href="#icon-gauge"></use></svg></span>
+              <span class="origin origin-3p">Terceiros</span>
+            </div>
+            <h3>ai-usagebar</h3>
+            <p>Barra de cota e uso de IA para TUI e Waybar, nos provedores onde você já tem credencial na máquina.</p>
+            <span class="cmd">MIT · akitaonrails</span>
+            <a class="card-link" href="https://github.com/akitaonrails/ai-usagebar" target="_blank" rel="noopener">akitaonrails/ai-usagebar <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
 
-    // Mobile menu toggle
-    const menuBtn = document.querySelector('.menu-btn');
-    const nav = document.querySelector('.nav');
+  <section id="arquitetura">
+    <div class="wrap">
+      <div class="eyebrow">Arquitetura</div>
+      <h2>Diagramas do sistema, em código aberto.</h2>
+      <p class="lead">Camadas do SO, componentes do runtime, fluxo de uma requisição e integração dos apps — desenhados com as rotas e os crates reais do repositório.</p>
+      <div class="diagram reveal">
+        <div class="dg-head">
+          <h3>Camadas do sistema</h3>
+          <span class="dg-kind">prévia</span>
+        </div>
+        <p class="dg-sub">Apps e agentes em cima, runtime de IA no meio, userland, base do SO e hardware embaixo. Cada camada só depende da de baixo.</p>
+        <div class="layer-stack">
+          <article class="layer">
+            <span class="layer-num">05</span>
+            <div>
+              <h3>Apps e agentes</h3>
+              <div class="chiprow">
+                <span class="chip">Laya Gateway</span>
+                <span class="chip">Web SQLite Admin</span>
+              </div>
+            </div>
+            <div class="layer-side"><b>AIOS</b>apps próprios</div>
+          </article>
+          <article class="layer">
+            <span class="layer-num">04</span>
+            <div>
+              <h3>Runtime de IA</h3>
+              <div class="chiprow">
+                <span class="chip">edge-ai</span>
+                <span class="chip">edge</span>
+                <span class="chip">ai</span>
+                <span class="chip">ai-core</span>
+                <span class="chip">ai-inference</span>
+                <span class="chip">edge-sdk</span>
+              </div>
+            </div>
+            <div class="layer-side"><b>RUST</b>127.0.0.1:8989</div>
+          </article>
+          <article class="layer">
+            <span class="layer-num">03</span>
+            <div>
+              <h3>Userland aios</h3>
+              <div class="chiprow">
+                <span class="chip">Ion shell</span>
+                <span class="chip">terminal</span>
+                <span class="chip">painel edge</span>
+              </div>
+            </div>
+            <div class="layer-side"><b>USERLAND</b>Rust</div>
+          </article>
+          <article class="layer">
+            <span class="layer-num">02</span>
+            <div>
+              <h3>Base do sistema</h3>
+              <div class="chiprow">
+                <span class="chip">Redox OS</span>
+              </div>
+            </div>
+            <div class="layer-side"><b>BASE</b>microkernel</div>
+          </article>
+          <article class="layer">
+            <span class="layer-num">01</span>
+            <div>
+              <h3>Hardware</h3>
+              <div class="chiprow">
+                <span class="chip">x86_64</span>
+                <span class="chip">aarch64</span>
+                <span class="chip">Raspberry Pi</span>
+              </div>
+            </div>
+            <div class="layer-side"><b>CPU</b>sem GPU</div>
+          </article>
+        </div>
+      </div>
+      <div class="hero-cta reveal">
+        <a class="btn btn-brand" href="arquitetura.html">Ver os cinco diagramas <svg class="icon icon-sm"><use href="#icon-arrow-right"></use></svg></a>
+        <a class="btn btn-primary" href="https://github.com/aios-b-612/aios/tree/main/edge-ai" target="_blank" rel="noopener">Código do runtime <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
+      </div>
+    </div>
+  </section>
 
-    if (menuBtn && nav) {
-      menuBtn.addEventListener('click', function() {
-        nav.classList.toggle('active');
-        const isActive = nav.classList.contains('active');
-        menuBtn.setAttribute('aria-expanded', isActive);
-      });
-    }
+  <section id="credits">
+    <div class="wrap">
+      <div class="eyebrow">Créditos e ecossistema</div>
+      <h2>Cada peça tem autoria.</h2>
+      <p class="lead">O aios é o sistema; o que ele usa também é de alguém. Primeiro o que é nosso, depois o que veio de fora.</p>
 
-    // Smooth reveal on scroll
-    const reveals = document.querySelectorAll('.feature-card, .stat-item');
+      <div class="group">
+        <div class="group-head"><b>aios · nosso</b><i></i><em>Idealização, sistema e apps próprios</em></div>
+        <div class="credits">
+          <div class="credit reveal">
+            <span class="icon-badge"><svg class="icon"><use href="#icon-cpu"></use></svg></span>
+            <div>
+              <b>aios — sistema operacional, runtime e apps</b>
+              <p>Idealização e desenvolvimento por <strong>Francisco Rodrigues (@rodriguesfas)</strong> e a organização AIOS (@aios-b-612).</p>
+              <span class="who">Rust · sistema e apps próprios</span>
+            </div>
+            <a class="out" href="https://github.com/aios-b-612/aios" target="_blank" rel="noopener">repositório <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
+          </div>
+          <div class="credit reveal">
+            <span class="icon-badge"><svg class="icon"><use href="#icon-gateway"></use></svg></span>
+            <div>
+              <b>Laya Gateway</b>
+              <p>Gateway local de roteamento de ferramentas para agentes, com Laya como especialista tipada e fail-open.</p>
+              <span class="who">Organização AIOS · Rust + Next.js</span>
+            </div>
+            <span class="lic">MIT</span>
+          </div>
+          <div class="credit reveal">
+            <span class="icon-badge"><svg class="icon"><use href="#icon-database"></use></svg></span>
+            <div>
+              <b>Web SQLite Admin</b>
+              <p>Administração SQLite open source com interface web e API Rust/Actix, consumida como sidecar pelo hosting Octor.</p>
+              <span class="who">Organização AIOS · Next.js + Rust/Actix</span>
+            </div>
+            <span class="lic">MIT</span>
+          </div>
+        </div>
+      </div>
 
-    const revealObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.style.opacity = '1';
-          entry.target.style.transform = 'translateY(0)';
-          revealObserver.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0' });
+      <div class="group third">
+        <div class="group-head"><b>Terceiros · de fora</b><i></i><em>Projetos externos que o aios usa ou se inspira</em></div>
+        <div class="credits">
+          <div class="credit reveal">
+            <span class="icon-badge"><svg class="icon"><use href="#icon-memory"></use></svg></span>
+            <div>
+              <b>ai-memory</b>
+              <p>Memória de longo prazo para agentes de código, em binário único Rust, sem chave de API no caminho padrão. Adotada como memória do sistema.</p>
+              <span class="who">akitaonrails</span>
+            </div>
+            <a class="out" href="https://github.com/akitaonrails/ai-memory" target="_blank" rel="noopener">projeto <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
+          </div>
+          <div class="credit reveal">
+            <span class="icon-badge"><svg class="icon"><use href="#icon-lock"></use></svg></span>
+            <div>
+              <b>ai-jail</b>
+              <p>Jaula de sistema operacional para rodar agentes de código com home, chaves, rede e clipboard fora do sandbox até você liberar.</p>
+              <span class="who">akitaonrails</span>
+            </div>
+            <a class="out" href="https://github.com/akitaonrails/ai-jail" target="_blank" rel="noopener">projeto <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
+          </div>
+          <div class="credit reveal">
+            <span class="icon-badge"><svg class="icon"><use href="#icon-gauge"></use></svg></span>
+            <div>
+              <b>ai-usagebar</b>
+              <p>Barra de cota e uso de IA para TUI e Waybar, nos provedores onde você já tem credencial na máquina.</p>
+              <span class="who">akitaonrails · inspirado em claudebar/codexbar</span>
+            </div>
+            <a class="out" href="https://github.com/akitaonrails/ai-usagebar" target="_blank" rel="noopener">projeto <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
+          </div>
+          <div class="credit reveal">
+            <span class="icon-badge"><svg class="icon"><use href="#icon-network"></use></svg></span>
+            <div>
+              <b>Candle</b>
+              <p>Framework mínimo de ML em Rust usado como backend de inferência CPU do aios.</p>
+              <span class="who">Hugging Face</span>
+            </div>
+            <a class="out" href="https://github.com/huggingface/candle" target="_blank" rel="noopener">projeto <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
+          </div>
+          <div class="credit reveal">
+            <span class="icon-badge"><svg class="icon"><use href="#icon-globe"></use></svg></span>
+            <div>
+              <b>Servo</b>
+              <p>Candidata a engine web embarcada do Developer OS, para renderizar painéis, ajuda e docs com a mesma linguagem do sistema.</p>
+              <span class="who">Servo Project</span>
+            </div>
+            <a class="out" href="https://github.com/servo/servo" target="_blank" rel="noopener">projeto <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
+          </div>
+          <div class="credit reveal">
+            <span class="icon-badge"><svg class="icon"><use href="#icon-terminal"></use></svg></span>
+            <div>
+              <b>opencode</b>
+              <p>Agente de código open source usado como IDE e harness padrão do fluxo de desenvolvimento.</p>
+              <span class="who">anomalyco (opencode)</span>
+            </div>
+            <a class="out" href="https://opencode.ai" target="_blank" rel="noopener">projeto <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
+          </div>
+          <div class="credit reveal">
+            <span class="icon-badge"><svg class="icon"><use href="#icon-doc"></use></svg></span>
+            <div>
+              <b>TinyLlama</b>
+              <p>Modelo base da família tiny SLM do aios, com os arquivos GGUF Q4 usados nas validações.</p>
+              <span class="who">Projeto TinyLlama · GGUF: TheBloke</span>
+            </div>
+            <a class="out" href="https://huggingface.co/TinyLlama" target="_blank" rel="noopener">projeto <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
+          </div>
+          <div class="credit reveal">
+            <span class="icon-badge"><svg class="icon"><use href="#icon-spark"></use></svg></span>
+            <div>
+              <b>Obscura</b>
+              <p>Referência visual e de linguagem para esta landing escura e monocromática do aios.</p>
+              <span class="who">obscura.sh</span>
+            </div>
+            <a class="out" href="https://obscura.sh" target="_blank" rel="noopener">referência <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-    reveals.forEach(el => {
-      el.style.opacity = '0';
-      el.style.transform = 'translateY(20px)';
-      el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-      revealObserver.observe(el);
-    });
-  </script>
+  <section class="cta">
+    <div class="wrap">
+      <h2>Leve a IA para o seu dispositivo.</h2>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="https://github.com/aios-b-612/aios" target="_blank" rel="noopener">Começar no GitHub <svg class="icon icon-sm"><use href="#icon-arrow-up-right"></use></svg></a>
+        <a class="btn btn-brand" href="apps.html">Ver os apps <svg class="icon icon-sm"><use href="#icon-arrow-right"></use></svg></a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <pre>{
+  "copyright": "© 2026 aios-b-612. Todos os direitos reservados.",
+  "code": ["https://github.com/aios-b-612/aios"],
+  "site": ["aios-b-612.github.io"]
+}</pre>
+    <nav aria-label="Links do rodapé">
+      <a href="https://github.com/aios-b-612/aios" target="_blank" rel="noopener">GitHub</a> ·
+      <a href="https://github.com/aios-b-612/aios/blob/main/docs/ROADMAP.md" target="_blank" rel="noopener">Roadmap</a> ·
+      <a href="https://github.com/aios-b-612/aios/issues" target="_blank" rel="noopener">Issues</a> ·
+      <a href="apps.html">Apps</a>
+    </nav>
+  </div>
+</footer>
+
 </body>
 </html>

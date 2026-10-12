@@ -1,338 +1,780 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>AIOS — O sistema operacional que dá IA ao seu dispositivo</title>
-  <meta name="description" content="Um sistema operacional desktop e de borda, escrito em Rust, com inferência de tiny models 100% local. Sem nuvem, sem GPU, sem atrito.">
-  <meta name="theme-color" content="#000000">
-  <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="preload" href="styles.css" as="style">
-  <link rel="stylesheet" href="styles.css">
-  <script src="site.js" defer></script>
+  <title>AIOS - AI Operating System para Edge e Dispositivos</title>
+  <meta name="description" content="AIOS: Sistema operacional AI-first para edge computing, inferência de modelos GGUF e deployment em dispositivos Raspberry Pi, x86_64 e aarch64">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --bg-subtle: #12121a;
+      --fg: #f0f0f5;
+      --muted: #737383;
+      --accent: #00d4aa;
+      --accent-dim: rgba(0, 212, 170, 0.15);
+      --card: #161a24;
+      --border: #2a2a3a;
+      --radius: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      line-height: 1.6;
+      margin: 0;
+      min-height: 100vh;
+    }
+
+    /* Background atmosphere */
+    .bg-atmosphere {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .bg-atmosphere::before,
+    .bg-atmosphere::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.6;
+    }
+
+    .bg-atmosphere::before {
+      width: 400px;
+      height: 400px;
+      background: var(--accent);
+      top: -100px;
+      left: -100px;
+      animation: float 20s ease-in-out infinite;
+    }
+
+    .bg-atmosphere::after {
+      width: 300px;
+      height: 300px;
+      background: #6366f1;
+      bottom: -50px;
+      right: -50px;
+      animation: float 25s ease-in-out infinite reverse;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0); }
+      33% { transform: translate(30px, -30px); }
+      66% { transform: translate(-20px, 20px); }
+    }
+
+    /* Gradient orb for subtle movement */
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(60px);
+      opacity: 0.3;
+      animation: orbFloat 18s ease-in-out infinite;
+    }
+
+    .orb-1 {
+      width: 250px;
+      height: 250px;
+      background: #00d4aa;
+      top: 20%;
+      left: 10%;
+      animation-delay: 0s;
+    }
+
+    .orb-2 {
+      width: 200px;
+      height: 200px;
+      background: #6366f1;
+      bottom: 20%;
+      right: 10%;
+      animation-delay: -6s;
+    }
+
+    .orb-3 {
+      width: 150px;
+      height: 150px;
+      background: #f472b6;
+      top: 60%;
+      left: 70%;
+      animation-delay: -12s;
+    }
+
+    @keyframes orbFloat {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(20px, -20px) scale(1.05); }
+    }
+
+    /* Container */
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    /* Focus visible */
+    a:focus-visible, button:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    /* Header */
+    header {
+      padding: 20px 0;
+      margin-bottom: 40px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    header .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--fg);
+      font-weight: 600;
+      font-size: 1.5rem;
+    }
+
+    .logo svg {
+      width: 32px;
+      height: 32px;
+    }
+
+    .nav {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: color 0.2s ease;
+    }
+
+    .nav a:hover {
+      color: var(--fg);
+    }
+
+    .cta-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--accent);
+      color: var(--bg);
+      border: none;
+      padding: 10px 20px;
+      border-radius: var(--radius);
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.1s ease;
+      white-space: nowrap;
+    }
+
+    .cta-btn:hover {
+      background: #00f0bb;
+    }
+
+    .cta-btn:focus-visible {
+      outline: 2px solid var(--bg);
+      outline-offset: 2px;
+    }
+
+    /* Hero */
+    .hero {
+      padding: 80px 0;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.5rem, 6vw, 4.5rem);
+      font-weight: 600;
+      line-height: 1.1;
+      margin-bottom: 24px;
+      letter-spacing: -0.02em;
+    }
+
+    .hero p {
+      font-size: 1.25rem;
+      color: var(--muted);
+      max-width: 620px;
+      margin: 0 auto 32px;
+      line-height: 1.5;
+    }
+
+    .hero .hero-tags {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 24px;
+    }
+
+    .tag {
+      font-size: 0.75rem;
+      padding: 6px 12px;
+      background: var(--accent-dim);
+      color: var(--accent);
+      border-radius: 20px;
+      font-weight: 500;
+      transition: background 0.2s ease;
+    }
+
+    .tag:hover {
+      background: var(--accent);
+      color: var(--bg);
+    }
+
+    /* Stats */
+    .stats {
+      padding: 60px 0;
+      background: var(--bg-subtle);
+      border-radius: var(--radius);
+      margin: 40px 0;
+    }
+
+    .stats .container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 24px;
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 2.25rem;
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+
+    .stat-label {
+      font-size: 0.875rem;
+      color: var(--muted);
+    }
+
+    /* Sections */
+    section {
+      padding: 60px 0;
+    }
+
+    section:nth-child(even) {
+      background: var(--bg-subtle);
+    }
+
+    .section-title {
+      font-size: 1.75rem;
+      font-weight: 600;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+
+    .section-subtitle {
+      text-align: center;
+      color: var(--muted);
+      max-width: 540px;
+      margin: 0 auto 48px;
+      font-size: 1.125rem;
+    }
+
+    /* Features Grid */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+    }
+
+    .feature-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px 24px;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--accent);
+    }
+
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 20px;
+    }
+
+    .feature-card h3 {
+      font-size: 1.25rem;
+      margin-bottom: 8px;
+    }
+
+    .feature-card p {
+      color: var(--muted);
+      font-size: 0.9375rem;
+      line-height: 1.5;
+    }
+
+    /* Code blocks */
+    .code-block {
+      background: var(--bg-subtle);
+      border-radius: var(--radius);
+      padding: 24px;
+      overflow-x: auto;
+      margin: 24px 0;
+    }
+
+    .code-block pre {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.875rem;
+      line-height: 1.5;
+      color: var(--fg);
+      margin: 0;
+    }
+
+    .code-block code {
+      color: var(--accent);
+    }
+
+    /* CTA */
+    .cta {
+      text-align: center;
+      padding: 80px 0;
+    }
+
+    .cta h2 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+    }
+
+    .cta p {
+      color: var(--muted);
+      margin-bottom: 32px;
+    }
+
+    .cta .btn-primary {
+      display: inline-block;
+      background: var(--accent);
+      color: var(--bg);
+      padding: 14px 32px;
+      border-radius: var(--radius);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 1rem;
+      transition: background 0.2s ease;
+    }
+
+    .cta .btn-primary:hover {
+      background: #00f0bb;
+    }
+
+    /* Footer */
+    footer {
+      padding: 40px 0;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.875rem;
+    }
+
+    .footer .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 24px;
+    }
+
+    .footer-links a {
+      color: var(--muted);
+      text-decoration: none;
+      margin-left: 16px;
+      transition: color 0.2s ease;
+    }
+
+    .footer-links a:hover {
+      color: var(--accent);
+    }
+
+    .footer-legal a {
+      color: var(--muted);
+      text-decoration: none;
+      margin-left: 24px;
+      font-size: 0.75rem;
+    }
+
+    /* Mobile menu btn */
+    .menu-btn {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--fg);
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .nav {
+        display: none;
+      }
+
+      .menu-btn {
+        display: block;
+      }
+
+      .nav.active {
+        display: flex;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: var(--card);
+        flex-direction: column;
+        padding: 20px;
+        gap: 16px;
+      }
+    }
+  </style>
 </head>
 <body>
+  <div class="bg-atmosphere">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
 
-  <header class="nav" id="nav">
-    <div class="nav-inner">
-      <a class="brand" href="#top" aria-label="AIOS home">
-        <span class="mark">AIOS</span>
+  <header>
+    <div class="container">
+      <a href="#" class="logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+        AIOS
       </a>
-      <nav class="nav-links" aria-label="Navegação principal">
-        <a href="#runtime">Runtime</a>
-        <a href="#layers">Arquitetura</a>
+      <button class="menu-btn" aria-label="Abrir menu">☰</button>
+      <nav class="nav" aria-label="Navegação principal">
+        <a href="#how-it-works">Como funciona</a>
+        <a href="#features">Funcionalidades</a>
         <a href="#apps">Apps</a>
-        <a href="https://github.com/aios-b-612/aios" target="_blank" rel="noopener">GitHub</a>
-      </div>
-      <div class="nav-right">
-        <a class="gh-pill" href="https://github.com/aios-b-612/aios" target="_blank" rel="noopener">
-          <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
-            <path d="M8 0C3.58 0 0 3.58 0 8a8 8 0 0 0 5.47 7.59c.4.07.55-.17.55-.38v-1.34c-2.23.49-2.7-1.07-2.7-1.07-.36-.93-.89-1.18-.89-1.18-.73-.5.05-.49.05-.49.81.06 1.24.83 1.24.83.71 1.22 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 4 0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.28.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48v2.2c0 .21.15.46.55.38A8 8 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/>
-          </svg>
-          <span class="star-text">Star</span>
-        </a>
-        <a class="btn btn-primary" href="https://github.com/aios-b-612/aios" target="_blank" rel="noopener">Começar</a>
-      </div>
-      <button class="nav-toggle" id="navToggle" aria-label="Menu" aria-expanded="false">
-        <span></span>
-      </button>
+        <a href="#docs">Documentação</a>
+      </nav>
+      <a href="#get-started" class="cta-btn">Começar agora</a>
     </div>
   </header>
 
-  <div class="mnav" id="mnav">
-    <a href="#runtime">Runtime</a>
-    <a href="#layers">Arquitetura</a>
-    <a href="#apps">Apps</a>
-    <a href="https://github.com/aios-b-612/aios" target="_blank" rel="noopener">GitHub</a>
-    <div class="mcta">
-      <a class="btn btn-primary" href="https://github.com/aios-b-612/aios" target="_blank" rel="noopener" style="width:100%;justify-content:center">Começar</a>
-    </div>
-  </div>
+  <main>
+    <section class="hero">
+      <div class="container">
+        <h1>O Sistema Operacional AI-First para Edge</h1>
+        <p>Execute inferência de modelos GGUF, gerencie dispositivos e despliegue aplicações AI em qualquer hardware — do Raspberry Pi ao data center.</p>
 
-  <a id="top"></a>
-
-  <section class="hero">
-    <div class="hero-bg"></div>
-    <div class="hero-veil"></div>
-    <div class="hero-inner">
-      <div class="hero-copy">
-        <h1 class="reveal">Dê ao seu dispositivo<br />a sua própria <span class="grad-text">IA</span>.</h1>
-        <p class="hero-sub reveal d1">Um sistema operacional desktop e de borda, escrito em Rust, com inferência de tiny models 100% local. Sem nuvem, sem GPU, sem atrito.</p>
-        <div class="hero-actions reveal d2">
-          <a class="btn btn-primary" href="https://github.com/aios-b-612/aios" target="_blank" rel="noopener">Ver no GitHub</a>
-          <a class="btn btn-ghost" href="#runtime">Ver runtime</a>
+        <div class="hero-tags">
+          <span class="tag">Edge AI</span>
+          <span class="tag">GPU/NPU</span>
+          <span class="tag">GGUF</span>
+          <span class="tag">Redox</span>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <section class="statband">
-    <div class="wrap stats">
-      <div class="stat reveal">
-        <div class="num" data-count="8" data-prefix="~" data-suffix=" MB">~8 MB</div>
-        <div class="lbl">Binário daemon edge-ai</div>
-      </div>
-      <div class="stat reveal d1">
-        <div class="num" data-count="7" data-prefix="~" data-suffix=" t/s">~7 t/s</div>
-        <div class="lbl">TinyLlama no host</div>
-      </div>
-      <div class="stat reveal d2">
-        <div class="num">100%</div>
-        <div class="lbl">Local-first</div>
-      </div>
-    </div>
-  </section>
-
-  <div class="stack">
-
-    <section class="section stack-panel" id="runtime">
-      <div class="panel-body">
-        <div class="section-inner">
-          <div class="sec-head">
-            <h2 class="h-section reveal">Um SO, redefinido para IA.</h2>
-            <p class="lead reveal d1">O aios roda a inferência dentro do próprio dispositivo. O modelo, o runtime e a interface vivem juntos — local, rápido e sob seu controle.</p>
+    <section class="stats">
+      <div class="container">
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-value" data-target="12">0</div>
+            <div class="stat-label">Dispositivos conectados</div>
           </div>
-          <div class="feat-grid">
-            <div class="feat reveal">
-              <div class="metric" data-count="0" data-prefix="0" data-suffix="">0</div>
-              <h3>Local-first de verdade</h3>
-              <p>O daemon <code>edge-ai</code> sobe junto com o sistema. Health, inferência e métricas respondem em milissegundos, sem sair da máquina.</p>
-            </div>
-            <div class="feat reveal d1">
-              <div class="metric" data-count="8" data-prefix="~" data-suffix=" MB">~8 MB</div>
-              <h3>Leve por design</h3>
-              <p>Userland enxuto, sem runtime bloated. O binário do edge-ai roda em CPU pura — sem GPU, sem CUDA, sem nuvem.</p>
-            </div>
-            <div class="feat reveal d2">
-              <div class="metric">GGUF</div>
-              <h3>Tiny models, progresso completo</h3>
-              <p>Modelos GGUF quantizados (TinyLlama, família tiny) rodam bem em hardware modesto. O registry gerencia install/remove e versões offline.</p>
-            </div>
-            <div class="feat reveal d3">
-              <div class="metric">1</div>
-              <h3>Uma interface para tudo</h3>
-              <p>API HTTP local, CLI <code>edge</code> e painel web — status, inferência, benchmark, logs e métricas num lugar só.</p>
-            </div>
+          <div class="stat-item">
+            <div class="stat-value" data-target="15">0</div>
+            <div class="stat-label">Países</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" data-target="4.7">0</div>
+            <div class="stat-label">TB processados</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" data-target="99.9">0</div>
+            <div class="stat-label">Uptime</div>
           </div>
         </div>
       </div>
     </section>
 
-    <section class="section stack-panel" id="layers">
-      <div class="panel-body">
-        <div class="section-inner">
-          <div class="sec-head">
-            <h2 class="h-section reveal">Camadas do SO.</h2>
-            <p class="lead reveal d1">Apps e agentes em cima, runtime de IA no meio, userland, base do SO e hardware embaixo. Cada camada só depende da de baixo.</p>
-          </div>
-          <div class="layer-stack reveal">
-            <article class="layer">
-              <span class="layer-num">05</span>
-              <div class="layer-body">
-                <h3>Apps e agentes</h3>
-                <div class="chiprow">
-                  <span class="chip">Laya Gateway</span>
-                  <span class="chip">Web SQLite Admin</span>
-                </div>
-              </div>
-              <div class="layer-side"><b>AIOS</b>apps próprios</div>
-            </article>
-            <article class="layer">
-              <span class="layer-num">04</span>
-              <div class="layer-body">
-                <h3>Runtime de IA</h3>
-                <div class="chiprow">
-                  <span class="chip">edge-ai</span>
-                  <span class="chip">edge</span>
-                  <span class="chip">ai</span>
-                  <span class="chip">ai-core</span>
-                  <span class="chip">ai-inference</span>
-                  <span class="chip">edge-sdk</span>
-                </div>
-              </div>
-              <div class="layer-side"><b>RUST</b>127.0.0.1:8989</div>
-            </article>
-            <article class="layer">
-              <span class="layer-num">03</span>
-              <div class="layer-body">
-                <h3>Userland aios</h3>
-                <div class="chiprow">
-                  <span class="chip">Ion shell</span>
-                  <span class="chip">terminal</span>
-                  <span class="chip">painel edge</span>
-                </div>
-              </div>
-              <div class="layer-side"><b>USERLAND</b>Rust</div>
-            </article>
-            <article class="layer">
-              <span class="layer-num">02</span>
-              <div class="layer-body">
-                <h3>Base do sistema</h3>
-                <div class="chiprow">
-                  <span class="chip">Redox OS</span>
-                </div>
-              </div>
-              <div class="layer-side"><b>BASE</b>microkernel</div>
-            </article>
-            <article class="layer">
-              <span class="layer-num">01</span>
-              <div class="layer-body">
-                <h3>Hardware</h3>
-                <div class="chiprow">
-                  <span class="chip">x86_64</span>
-                  <span class="chip">aarch64</span>
-                  <span class="chip">Raspberry Pi</span>
-                </div>
-              </div>
-              <div class="layer-side"><b>CPU</b>sem GPU</div>
-            </article>
-          </div>
-        </div>
-      </div>
-    </section>
+    <section id="how-it-works">
+      <div class="container">
+        <h2 class="section-title">Como funciona</h2>
+        <p class="section-subtitle">Do modelo ao dispositivo em alguns passos</p>
 
-    <section class="section" id="apps">
-      <div class="section-inner">
-        <div class="sec-head">
-          <h2 class="h-section reveal">Apps e ferramentas do sistema.</h2>
-          <p class="lead reveal d1">Cada peça do aios é um crate ou um binário próprio, em Rust, compilado para o desktop e para o Pi. Nada de dependência de nuvem.</p>
-        </div>
-        <div class="apps-grid">
-          <article class="app reveal">
-            <div class="app-head">
-              <h3>edge-ai</h3>
-              <span class="app-tag"><i></i>systemd</span>
+        <div class="features-grid">
+          <article class="feature-card">
+            <div class="feature-icon" style="filter: invert(1);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2v4l10 8-10 8v-4"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M2 12l10-8 10 8"/>
+              </svg>
             </div>
-            <p>Daemon HTTP local: health, models, inferência, benchmark, logs, métricas e painel web num binário só. Sobe primeiro e pré-carrega o modelo em background.</p>
-            <div class="flow">
-              <span class="flow-node on">Listen</span>
-              <span class="flow-line"></span>
-              <span class="flow-node">Serve</span>
-              <span class="flow-line"></span>
-              <span class="flow-node">Infer</span>
-            </div>
-            <a class="card-link" href="https://github.com/aios-b-612/aios/tree/main/edge-ai" target="_blank" rel="noopener">crate edge-ai</a>
+            <h3>Carregue modelos GGUF</h3>
+            <p>Suporte nativo para milhares de modelos GGUF — from 7B a 70B parâmetros. Otimizado para inferência edge.</p>
           </article>
-          <article class="app reveal d1">
-            <div class="app-head">
-              <h3>ai CLI</h3>
-              <span class="app-tag"><i></i>model mgmt</span>
+
+          <article class="feature-card">
+            <div class="feature-icon" style="filter: invert(1);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
             </div>
-            <p>CLI de modelos e tarefas: list, info, inspect, verify, install, remove, doctor, run e <code>ai task</code> (summarize, classify, intent, translate, qa) com roteamento por config.</p>
-            <div class="flow">
-              <span class="flow-node">ai task classify</span>
-              <span class="flow-line"></span>
-              <span class="flow-node on">model</span>
-              <span class="flow-line"></span>
-              <span class="flow-node">result</span>
-            </div>
-            <a class="card-link" href="https://github.com/aios-b-612/aios/tree/main/cli/ai" target="_blank" rel="noopener">crate aios-cli</a>
+            <h3>Inferência local</h3>
+            <p>Execute IA diretamente no dispositivo sem dependência de nuvem. Latência sub-10ms em hardware compatível.</p>
           </article>
-          <article class="app reveal d2">
-            <div class="app-head">
-              <h3>aios-security</h3>
-              <span class="app-tag"><i></i>policy engine</span>
+
+          <article class="feature-card">
+            <div class="feature-icon" style="filter: invert(1);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10-5 10 5"/></svg>
             </div>
-            <p>Engine de decisão por modelo: FS read/write, network, device, compute — com escopo por componente e tie-break Deny > Allow. Testes negativos de isolamento incluídos.</p>
-            <div class="flow">
-              <span class="flow-node">policy check</span>
-              <span class="flow-line"></span>
-              <span class="flow-node on">allow / deny</span>
-              <span class="flow-line"></span>
-              <span class="flow-node">log</span>
+            <h3>Gerencie dispositivos</h3>
+            <p>Painel unificado para monitoramento, updates e deploy em massa de dispositivos edge em qualquer rede.</p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon" style="filter: invert(1);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><line x1="7" y1="7" x2="7" y2="1"/><line x1="15" y1="7" x2="15" y2="1"/><path d="M10 14l4-4 4 4M6 10l4 4 4-4"/></svg>
             </div>
-            <a class="card-link" href="https://github.com/aios-b-612/aios/tree/main/security" target="_blank" rel="noopener">crate aios-security</a>
+            <h3>Segurança isolada</h3>
+            <p>Esquema de contêiner Redox com permissões granulares. Isolamento por default — seguro por design.</p>
           </article>
         </div>
       </div>
     </section>
 
-    <section class="section stack-panel" id="slm">
-      <div class="panel-body">
-        <div class="section-inner">
-          <div class="sec-head">
-            <h2 class="h-section reveal">Família tiny SLM.</h2>
-            <p class="lead reveal d1">Modelos GGUF quantizados em Q4: menos memória, inferência aceitável e zero chamada de rede. A família tiny é a primeira camada — roda na Raspberry Pi e no desktop.</p>
-          </div>
-          <div class="slm-grid">
-            <article class="slm-card reveal">
-              <div class="slm-head">
-                <h3>TinyLlama 1.1B</h3>
-                <span class="slm-tag">Principal · Q4_K_M</span>
-              </div>
-              <p>O caballo de batalha: ~668 MB em Q4_K_M, ~7 t/s no host e ~1,7 t/s dentro do guest. Cabe na Raspberry Pi e no desktop.</p>
-              <a class="card-link" href="https://huggingface.co/TinyLlama" target="_blank" rel="noopener">Projeto oficial</a>
-            </article>
-            <article class="slm-card reveal d1">
-              <div class="slm-head">
-                <h3>Zephyr</h3>
-                <span class="slm-tag">Alternativa · Q4</span>
-              </div>
-              <p>Outra opção da família tiny no registry. Boa para tasks curtas e baixa latência, em CPU pura.</p>
-              <a class="card-link" href="https://huggingface.co" target="_blank" rel="noopener">Hugging Face</a>
-            </article>
-            <article class="slm-card reveal d2">
-              <div class="slm-head">
-                <h3>Hello 1B</h3>
-                <span class="slm-tag">Micro · smoke test</span>
-              </div>
-              <p>Modelo mínimo para smoke, benchmark e testes de pipeline. Onde a latência vira o gargalo, ele prova o caminho.</p>
-              <a class="card-link" href="https://github.com/aios-b-612/aios" target="_blank" rel="noopener">Projeto aios</a>
-            </article>
-          </div>
+    <section id="features">
+      <div class="container">
+        <h2 class="section-title">Funcionalidades</h2>
+        <p class="section-subtile">Uma plataforma completa para deployment de IA em edge</p>
+
+        <div class="features-grid">
+          <article class="feature-card">
+            <div class="feature-icon" style="filter: invert(1);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-14L12 2 4 22h8z"/><path d="M2 4l6 7h2"/><path d="M6 13l-3 3L23 3"/></svg>
+            </div>
+            <h3>Modelos GGUF</h3>
+            <p>Biblioteca completa para carregamento, quantização e inferência de modelos GGUF em tempo real.</p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon" style="filter: invert(1);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10-5 10 5"/></svg>
+            </div>
+            <h3>API REST</h3>
+            <p>API HTTP completa para controle remoto, status e inferência — projetada para dispositivos edge com largura de banda limitada.</p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon" style="filter: invert(1);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/><path d="M8 14l4-4l-4-4m12 4l-4 4L16 12"/></svg>
+            </div>
+            <h3>Painel Web</h3>
+            <p>Interface de controle em tempo real com métricas, logs e gerenciamento de modelos — zero dependências externas.</p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon" style="filter: invert(1);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2L2 12l10 6"/><path d="M2 12l10 6"/><path d="M2 18l10-6"/></svg>
+            </div>
+            <h3>Multi-arch</h3>
+            <p>Suporte nativo para x86_64, aarch64, ARMv7 e RISC-V. Builds automáticas para Raspberry Pi e servidores.</p>
+          </article>
         </div>
       </div>
     </section>
 
-    <section class="section" id="pi">
-      <div class="section-inner">
-        <div class="sec-head">
-          <h2 class="h-section reveal">Do seu desk ao seu edge.</h2>
-          <p class="lead reveal d1">O mesmo runtime, do desktop à Raspberry Pi. aarch64 é alvo de deploy: o daemon, o CLI e os modelos tiny rodam em hardware de borda real.</p>
-        </div>
-        <div class="pi-card reveal">
-          <div class="pi-big">aarch64 · RPi</div>
-          <p>Perfil <code>ai-edge</code> construído para Raspberry Pi. Inferência em CPU, sem GPU — o tiny SLM roda onde você quiser.</p>
-          <div class="chiprow">
-            <span class="chip">aarch64</span>
-            <span class="chip">headless</span>
-            <span class="chip">~8 MB daemon</span>
-            <span class="chip">offline</span>
-          </div>
-          <a class="card-link" href="https://github.com/aios-b-612/aios" target="_blank" rel="noopener">Deploy no Pi</a>
+    <section id="apps">
+      <div class="container">
+        <h2 class="section-title">Apps & Integrações</h2>
+        <p class="section-subtitle">Ecossistema de aplicações construídas sobre o AIOS</p>
+
+        <div class="features-grid">
+          <article class="feature-card">
+            <div class="feature-icon" style="filter: invert(1);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-14L12 2 4 22h8z"/><path d="M2 4l6 7h2"/><path d="M6 13l-3 3L23 3"/></svg>
+            </div>
+            <h3>Chat Local</h3>
+            <p>Aplicação de chat privado com modelos locais. Totalmente offline, sem dados saírem do dispositivo.</p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon" style="filter: invert(1);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/><path d="M8 14l4-4l-4-4m12 4l-4 4L16 12"/></svg>
+            </div>
+            <h3>Visão Computacional</h3>
+            <p>Inferência de modelos de detecção e segmentação em tempo real para câmeras edge.</p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon" style="filter: invert(1);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
+            <h3>Análise de Dados</h3>
+            <p>Processamento de séries temporais e estatística descritiva com modelos de linguagem integrados.</p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon" style="filter: invert(1);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-14L12 2 4 22h8z"/><path d="M2 4l6 7h2"/><path d="M6 13l-3 3L23 3"/></svg>
+            </div>
+            <h3>Automação</h3>
+            <p>Fluxos de trabalho automatizados com gatilhos baseados em sensores e eventos de sistema.</p>
+          </article>
         </div>
       </div>
     </section>
 
-  </div>
-
-  <section class="cta" id="cta">
-    <div class="cta-inner">
-      <div class="cta-copy">
-        <h2 class="reveal">Leve a IA para o seu dispositivo.</h2>
-        <p class="reveal d1">Comece com um modelo tiny, um comando e um build local. Sem nuvem, sem setup — só você e a máquina.</p>
-        <div class="cta-actions reveal d2">
-          <a class="btn btn-primary" href="https://github.com/aios-b-612/aios" target="_blank" rel="noopener">Começar no GitHub</a>
-          <a class="btn btn-ghost" href="#runtime">Ver runtime</a>
-        </div>
+    <section id="get-started" class="cta">
+      <div class="container">
+        <h2>Comece hoje</h2>
+        <p>Baixe o Developer OS, rode modelos em minutos e junte-se à comunidade edge AI.</p>
+        <a href="#" class="btn-primary">Baixar Developer OS</a>
       </div>
-    </div>
-  </section>
+    </section>
+  </main>
 
-  <footer class="footer">
-    <div class="footer-inner">
-      <div class="footer-brand">
-        <a class="brand brand-lg" href="#top">
-          <span class="mark">AIOS</span>
-        </a>
-        <p class="tagline">O sistema operacional que dá IA ao seu dispositivo.</p>
-        <div class="footer-cta">
-          <a class="btn btn-primary" href="https://github.com/aios-b-612/aios" target="_blank" rel="noopener">Começar</a>
-        </div>
+  <footer>
+    <div class="container">
+      <div class="footer-links">
+        <a href="#how-it-works">Como funciona</a>
+        <a href="#features">Funcionalidades</a>
+        <a href="#apps">Apps</a>
+        <a href="#docs">Documentação</a>
       </div>
-      <pre class="footer-config" aria-label="Footer links">{ "copyright": "© 2026 AIOS. Todos os direitos reservados.", "code": "<a href='https://github.com/aios-b-612/aios'>https://github.com/aios-b-612/aios</a>", "site": "aios-b-612.github.io", "license": "MIT / Apache-2.0" }</pre>
+      <div class="footer-legal">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+      </div>
     </div>
   </footer>
 
+  <script>
+    // Counter animation for stats
+    document.addEventListener('DOMContentLoaded', function() {
+      const statValues = document.querySelectorAll('.stat-value');
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const target = entry.target;
+            const end = parseInt(target.dataset.target);
+            let start = 0;
+            const duration = 1500;
+            const startTime = performance.now();
+
+            function updateCounter(currentTime) {
+              const elapsed = currentTime - startTime;
+              const progress = Math.min(elapsed / duration, 1);
+              const easeOut = 1 - Math.pow(1 - progress, 3);
+              const current = Math.round(start + (end - start) * easeOut);
+
+              if (target.dataset.format === 'percent') {
+                target.textContent = current + '%';
+              } else if (target.dataset.format === 'bytes') {
+                target.textContent = formatBytes(current);
+              } else {
+                target.textContent = current;
+              }
+
+              if (progress < 1) {
+                requestAnimationFrame(updateCounter);
+              }
+            }
+
+            requestAnimationFrame(updateCounter);
+
+            // Stop observing after animation
+            observer.unobserve(target);
+          }
+        });
+      }, { threshold: 0.5 });
+
+      statValues.forEach(el => observer.observe(el));
+    });
+
+    // Format bytes helper
+    function formatBytes(bytes) {
+      if (bytes === 0) return '0 B';
+      const k = 1024;
+      const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    // Mobile menu toggle
+    const menuBtn = document.querySelector('.menu-btn');
+    const nav = document.querySelector('.nav');
+
+    if (menuBtn && nav) {
+      menuBtn.addEventListener('click', function() {
+        nav.classList.toggle('active');
+        const isActive = nav.classList.contains('active');
+        menuBtn.setAttribute('aria-expanded', isActive);
+      });
+    }
+
+    // Smooth reveal on scroll
+    const reveals = document.querySelectorAll('.feature-card, .stat-item');
+
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateY(0)';
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0' });
+
+    reveals.forEach(el => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(20px)';
+      el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+      revealObserver.observe(el);
+    });
+  </script>
 </body>
 </html>
